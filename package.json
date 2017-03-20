@@ -1,0 +1,23 @@
+{
+  "name": "2fa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "sudo node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeardyC/2FA-Platform.git"
+  },
+  "author": "BeardyC",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BeardyC/2FA-Platform/issues"
+  },
+  "homepage": "https://github.com/BeardyC/2FA-Platform#readme",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
