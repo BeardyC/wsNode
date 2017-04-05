@@ -23,7 +23,7 @@ let credentials = {
 app.get("/", function (req, res) {
     res.end("Working as intended!");
 });
-app.post("/", function (req, res) {
+app.post("/encrypt", function (req, res) {
     console.log(req.body.name);
     //res.send(req.body.name);
     let toBeEncryped: string = req.body.name;
@@ -41,10 +41,6 @@ app.post("/", function (req, res) {
     let decryped = crypto.privateDecrypt(privateKey, buffer2);
     console.log("decryped  :   ", decryped.toString("utf8"));
     res.send(encryped);
-    /*  
-      console.log(req.body);
-      res.send("Welcome ", req.body.name);*/
-    // res.send(req.body.name);
 });
 
 /*app.get("/create/:user", function (req, res) {
@@ -52,20 +48,47 @@ app.post("/", function (req, res) {
         res.json({ req: req.params, resp: response });
     });
 });*/
+app.post("/registerWebService/", function (req, res) {
+    console.log("Registering Webservice");
+    console.log(req.body.wname);
+    twofactor.createWebservice(req.body.wname, req.body.wpassword, function (response) {
+        res.json(response);
+    })
+
+});
 
 app.post("/check/", function (req, res) {
     res.json("Welcome");
     console.log("Welcome,", req.body.name);
 });
-app.get("/createUser/", function (req, res) {
-    twofactor.createUser("xy","x", function (response) {
-        res.json({req: req.params, resp: response});
+app.post("/createUser/", function (req, res) {
+    twofactor.createUser(req.body.username, req.body.password, function (response) {
+        res.json({resp: response });
     });
 });
 
+app.post("/checkUser/", function(req,res){
+    twofactor.checkUser(req.body.username, req.body.password, function(response){
+        res.json({resp: response});
+    });
+});
+
+app.post("/checkCode/", function(req,res){
+    twofactor.checkCode(req.body.username, req.body.code, function(response){
+        res.json({resp: response});
+    });
+});
+
+
+
+/*let server = https.createServer(credentials, app).listen(443, function () {
+    console.log("Listening on", server.address().address, server.address().port);
+});*/
+//asdasdasd
 let server = https.createServer(credentials, app).listen(443, "0.0.0.0", function () {
     console.log("Listening on", server.address().address, server.address().port);
 });
+
 
 
 

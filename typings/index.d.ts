@@ -6,3 +6,4 @@
 /// <reference path="modules/helmet/index.d.ts" />
 /// <reference path="modules/redis/index.d.ts" />
 /// <reference path="modules/serve-static/index.d.ts" />
+/// <reference path="modules/uuid/index.d.ts" />

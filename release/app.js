@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 /// <reference path="../typings/index.d.ts" />
 var express = require("express");
 var fs = require("fs");
@@ -11,7 +11,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var app = express();
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
-var twofactor = new tfa_1.default(15, "sha256", 4);
+var twofactor = new tfa_1["default"](15, "sha256", 4);
 var privateKey = fs.readFileSync("../keyscerts/server-key.pem", "utf8");
 var cert = fs.readFileSync("../keyscerts/server-cert.pem", "utf8");
 var credentials = {
@@ -45,15 +45,26 @@ app.post("/", function (req, res) {
         res.json({ req: req.params, resp: response });
     });
 });*/
+app.post("/registerWebService/", function (req, res) {
+    console.log("Registering Webservice");
+    console.log(req.body.wname);
+    twofactor.createWebservice(req.body.wname, req.body.wpassword, function (response) {
+        res.json(response);
+    });
+});
 app.post("/check/", function (req, res) {
     res.json("Welcome");
     console.log("Welcome,", req.body.name);
 });
-app.get("/createUser/", function (req, res) {
-    twofactor.createUser("xy", "x", function (response) {
+app.post("/createUser/", function (req, res) {
+    twofactor.createUser(req.body.username, req.body.password, function (response) {
         res.json({ req: req.params, resp: response });
     });
 });
+/*let server = https.createServer(credentials, app).listen(443, function () {
+    console.log("Listening on", server.address().address, server.address().port);
+});*/
+//asdasdasd
 var server = https.createServer(credentials, app).listen(443, "0.0.0.0", function () {
     console.log("Listening on", server.address().address, server.address().port);
 });

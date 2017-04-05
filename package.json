@@ -1,6 +1,6 @@
 {
   "name": "2fa",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "2fa platform",
   "main": "index.js",
   "scripts": {
@@ -15,5 +15,14 @@
     "redis": "^2.7.1",
     "sqlite3": "^3.1.8",
     "typings": "^2.1.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeardyC/2FA.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BeardyC/2FA/issues"
+  },
+  "homepage": "https://github.com/BeardyC/2FA#readme"
 }
