@@ -1,6 +1,6 @@
 import * as redis from 'redis';
 import * as crypto from 'crypto';
-
+import * as uuid from 'uuid';
 //var parse = require('pg-connection-string').parse;
 
 //var config1 = parse('postgres://xyz@localhost:5432/xyz')
@@ -32,20 +32,20 @@ export default class TFA {
     private hashValidity: number;
     private hashAlgo: string;
     private hashLength: number;
-   
+
 
 
     public constructor(hashValidity: number, hashAlgo: string, hashLength: number) {
         this.db = redis.createClient();
-        
+
         this.db.on("error", function (err) {
             console.log("REDIS ERROR:", err);
         });
-        
+
         this.hashValidity = hashValidity;
         this.hashAlgo = hashAlgo;
         this.hashLength = hashLength;
-        
+
     }
 
     private generateTimestamp() {
@@ -53,17 +53,90 @@ export default class TFA {
     }
 
 
-    public createUser(username: string,password:string, callback: (Response) => void) {
+    public createUser(username: string, password: string, callback: (Response) => void) {
         this.db.get(username, (err, reply) => {
+            console.log("Username   :   ", username);
+            console.log("Password   :   ", password);
             console.log(err, reply);
             if (reply === null) {
+
                 let hash = crypto.createHash("sha256");
                 hash.update(crypto.randomBytes(128));
                 this.db.set(username, this.generateTimestamp());
                 this.db.set(username + "_salt", hash.digest("hex"));
+                this.db.get(username + "_salt", (err, reply) => {
+                    console.log("salt : " + reply);
+
+                });
+                //console.log("NOT HASHED",password + this.db.get(username + "_salt"));
+                //console.log("HASHEd",this.hash(password + this.db.get(username + "_salt"),callback));
+                //this.db.set(username+"_p_h", this.hash(password+this.db.get(username + "_salt"),callback));
+
+                //let data = password + reply;
+                //let hashed = this.hash(data,callback)
+                //console.log("DIGESTED   :   ");
+/*                this.hash(data, function (hashed) {
+                    console.log("Hashed     :   ", hashed);
+                    this.db.set(password, hashed);
+                })*/
+
                 callback(new Response(ResponseStatus.SUCCESS, "User created successfuly"));
             } else {
+
                 callback(new Response(ResponseStatus.ERROR, "User already exists"));
+            }
+        });
+    }
+
+    public checkUser(username: string, password: string, callback: (Response) => void ){
+
+    }
+
+    public checkCode(username: string, code: string, callback: (Response)=>void){
+
+    }
+
+    public createWebservice(servicename: string, password: string, callback: (Response) => void) {
+        this.db.get(servicename, (err, reply) => {
+            console.log(err, reply);
+            let apikey = uuid.v4();
+            console.log(apikey);
+            let hash = crypto.createHash("sha256");
+            
+            this.db.set(servicename, servicename);
+            this.db.set(servicename + "_password", password);
+
+            callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
+
+        });
+    }
+
+    public hash(data: string,callback) {
+        const hash = crypto.createHash('sha256');
+        console.log("DATA   :   ",data)
+        console.log("Hashing    :   ", hash.update(data));
+        
+        callback(hash.digest("hex"));
+    }
+
+    public generate(username: string, callback: (Response) => void){
+        this.db.get(username, (err, reply) => {
+            if (reply === null){
+                callback(new Response(ResponseStatus.SUCCESS, "Username doesn't exist"));
+            } else{
+                let epoch = parseInt(reply);
+                this.db.get(username + "_salt", (err, reply) => {
+                    if (reply === null){
+                        callback(new Response(ResponseStatus.SUCCESS, "Fatal error"));
+                    } else{
+                        let hash = crypto.createHash(this.hashAlgo);
+                        let salt = reply;
+                        let iteration = Math.floor((this.generateTimestamp() - epoch) / this.hashValidity);
+                        hash.update(salt + iteration);
+                        let authCode = hash.digest("hex").substr(0, this.hashLength);
+                        callback(new Response(ResponseStatus.SUCCESS, {code: authCode, it: iteration}));
+                    }
+                }); 
             }
         });
     }

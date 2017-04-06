@@ -1,7 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var redis = require("redis");
 var crypto = require("crypto");
+var uuid = require("uuid");
 //var parse = require('pg-connection-string').parse;
 //var config1 = parse('postgres://xyz@localhost:5432/xyz')
 //let connectionString = process.env.DATABASE_URL || "postgres://localhost:5432/xyz";
@@ -49,19 +50,60 @@ var TFA = (function () {
     TFA.prototype.createUser = function (username, password, callback) {
         var _this = this;
         this.db.get(username, function (err, reply) {
+            console.log("Username   :   ", username);
+            console.log("Password   :   ", password);
             console.log(err, reply);
             if (reply === null) {
                 var hash = crypto.createHash("sha256");
                 hash.update(crypto.randomBytes(128));
                 _this.db.set(username, _this.generateTimestamp());
                 _this.db.set(username + "_salt", hash.digest("hex"));
+                _this.db.get(username + "_salt", function (err, reply) {
+                    console.log("salt : " + reply);
+                });
+                //console.log("NOT HASHED",password + this.db.get(username + "_salt"));
+                //console.log("HASHEd",this.hash(password + this.db.get(username + "_salt"),callback));
+                //this.db.set(username+"_p_h", this.hash(password+this.db.get(username + "_salt"),callback));
+                //let data = password + reply;
+                //let hashed = this.hash(data,callback)
+                //console.log("DIGESTED   :   ");
+                /*                this.hash(data, function (hashed) {
+                                    console.log("Hashed     :   ", hashed);
+                                    this.db.set(password, hashed);
+                                })*/
                 callback(new Response(ResponseStatus.SUCCESS, "User created successfuly"));
             }
             else {
+                _this.db.get(username + "_salt", function (err, reply) {
+                    console.log("salt : " + reply);
+                });
                 callback(new Response(ResponseStatus.ERROR, "User already exists"));
             }
         });
     };
+    TFA.prototype.createWebservice = function (servicename, password, callback) {
+        var _this = this;
+        this.db.get(servicename, function (err, reply) {
+            console.log(err, reply);
+            var apikey = uuid.v4();
+            console.log(apikey);
+            var hash = crypto.createHash("sha256");
+            _this.db.set(servicename, servicename);
+            _this.db.set(password);
+            /*if (reply === null) {
+                this.db.set(servicename, servicename);
+                
+
+            }*/
+            callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
+        });
+    };
+    TFA.prototype.hash = function (data, callback) {
+        var hash = crypto.createHash('sha256');
+        console.log("DATA   :   ", data);
+        console.log("Hashing    :   ", hash.update(data));
+        callback(hash.digest("hex"));
+    };
     return TFA;
 }());
-exports.default = TFA;
+exports["default"] = TFA;
