@@ -1,0 +1,110 @@
+
+.container form h2 {
+    text-align:center;
+}
+#submitButton {
+    width: 30%;
+    text-align:center;
+    margin: 0 auto;
+}
+#wrapSubmitButton{
+    text-align:center;
+    margin: 0 auto;
+}
+.footer p{
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    float:right;
+}
+
+
+
+
+
+#menuContainer {
+    position: relative;
+}
+#image {
+  left: 0;
+  top: 0;
+  width:100%;
+}
+#navigation {
+  z-index: 100;
+  position: absolute;
+  color:white;
+  top: 20px;
+  width:100%;
+}
+
+
+#navigation #nav-right {
+  text-align:right;
+
+}
+#navigation #nav-left{
+  text-align:left;
+}
+
+
+#navigation #right-menu li {
+  list-style-type: none;
+  display: inline-block;
+  float: right;
+}
+#navigation #right-menu li a {
+  text-decoration: none;
+  color: black;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  margin:5px;
+  border: solid 2px black;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#navigation #right-menu li a:hover {
+  background: black;
+  transition:0.5s;
+  color:white;
+}
+
+
+#navigation #left-menu li {
+  list-style-type: none;
+  display: inline-block;
+  float:left;
+}
+#navigation #left-menu li a {
+  text-decoration: none;
+  color: #FFF;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  margin:5px;
+  font-size: 22px;
+}
+#navigation #left-menu li a:hover {
+  transition:0.5s;
+  color:orange;
+}
+
+#left-menu {
+  margin-left: 80px;
+}
+
+#right-menu {
+  margin-right: 80px;
+}
+
+
+
+ul {
+  vertical-align: middle;
+}
+span {
+  color: orange;
+}

@@ -6,6 +6,7 @@ import * as https from "https";
 import * as http from "http";
 import * as body from "body-parser";
 import * as crypto from "crypto";
+import * as path from "path";
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -20,8 +21,11 @@ let credentials = {
     key: privateKey,
     cert: cert
 };
+
+app.use(express.static(__dirname + "/views"));
+//app.user(express.static(path.join(__dirname, '/')));
 app.get("/", function (req, res) {
-    res.end("Working as intended!");
+    res.status(200).sendFile(__dirname + "l/views/index.html");
 });
 app.post("/encrypt", function (req, res) {
     console.log(req.body.name);
@@ -51,11 +55,19 @@ app.post("/encrypt", function (req, res) {
 app.post("/registerWebService/", function (req, res) {
     console.log("Registering Webservice");
     console.log(req.body.wname);
+    console.log(req.body.wpass)
     twofactor.createWebservice(req.body.wname, req.body.wpassword, function (response) {
         res.json(response);
     })
 
 });
+app.post("/getApiKey/", function(req, res){
+    console.log("Retrieving Api key");
+    console.log(req.body.wname);
+    twofactor.getApiKey(req.body.wname, function(response){
+        res.json(response);
+    });
+})
 
 app.post("/check/", function (req, res) {
     res.json("Welcome");
@@ -76,6 +88,7 @@ app.post("/checkUser/", function(req,res){
 app.post("/checkCode/", function(req,res){
     twofactor.checkCode(req.body.username, req.body.code, function(response){
         res.json({resp: response});
+        
     });
 });
 

@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 /// <reference path="../typings/index.d.ts" />
 var express = require("express");
 var fs = require("fs");
@@ -11,17 +11,19 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var app = express();
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
-var twofactor = new tfa_1["default"](15, "sha256", 4);
+var twofactor = new tfa_1.default(15, "sha256", 4);
 var privateKey = fs.readFileSync("../keyscerts/server-key.pem", "utf8");
 var cert = fs.readFileSync("../keyscerts/server-cert.pem", "utf8");
 var credentials = {
     key: privateKey,
     cert: cert
 };
+app.use(express.static(__dirname + "/views"));
+//app.user(express.static(path.join(__dirname, '/')));
 app.get("/", function (req, res) {
-    res.end("Working as intended!");
+    res.status(200).sendFile(__dirname + "l/views/index.html");
 });
-app.post("/", function (req, res) {
+app.post("/encrypt", function (req, res) {
     console.log(req.body.name);
     //res.send(req.body.name);
     var toBeEncryped = req.body.name;
@@ -35,10 +37,6 @@ app.post("/", function (req, res) {
     var decryped = crypto.privateDecrypt(privateKey, buffer2);
     console.log("decryped  :   ", decryped.toString("utf8"));
     res.send(encryped);
-    /*
-      console.log(req.body);
-      res.send("Welcome ", req.body.name);*/
-    // res.send(req.body.name);
 });
 /*app.get("/create/:user", function (req, res) {
     twofactor.createUser(req.params.user, function (response) {
@@ -48,7 +46,15 @@ app.post("/", function (req, res) {
 app.post("/registerWebService/", function (req, res) {
     console.log("Registering Webservice");
     console.log(req.body.wname);
+    console.log(req.body.wpass);
     twofactor.createWebservice(req.body.wname, req.body.wpassword, function (response) {
+        res.json(response);
+    });
+});
+app.post("/getApiKey/", function (req, res) {
+    console.log("Retrieving Api key");
+    console.log(req.body.wname);
+    twofactor.getApiKey(req.body.wname, function (response) {
         res.json(response);
     });
 });
@@ -58,7 +64,17 @@ app.post("/check/", function (req, res) {
 });
 app.post("/createUser/", function (req, res) {
     twofactor.createUser(req.body.username, req.body.password, function (response) {
-        res.json({ req: req.params, resp: response });
+        res.json({ resp: response });
+    });
+});
+app.post("/checkUser/", function (req, res) {
+    twofactor.checkUser(req.body.username, req.body.password, function (response) {
+        res.json({ resp: response });
+    });
+});
+app.post("/checkCode/", function (req, res) {
+    twofactor.checkCode(req.body.username, req.body.code, function (response) {
+        res.json({ resp: response });
     });
 });
 /*let server = https.createServer(credentials, app).listen(443, function () {
