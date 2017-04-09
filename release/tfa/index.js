@@ -53,7 +53,7 @@ var TFA = (function () {
             return data;
         })
             .then(function (data) {
-            var x = _this.hashpassword();
+            var x = _this.hashpassword("password", "user.salt", 1000);
             callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
         })
             .catch(function (err) {
@@ -61,21 +61,15 @@ var TFA = (function () {
         });
     };
     TFA.prototype.createUserPostGres = function (user, callback) {
-        var timestamp = this.generateTimestamp().toString();
-        user.tstamp = timestamp;
+        user.tstamp = this.generateTimestamp().toString();
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        user.password = this.hashpassword(user.password, user.salt, 1000);
         var conf = {
             hashBytes: 32,
             saltBytes: user.salt,
             renewalTime: 30,
             iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
         };
-        /*let hash = crypto.createHash("sha256");
-        hash.update(crypto.randomBytes(128));
-        
-        let hashp = crypto.createHash("sha256")
-        hashp.update(password);
-        this.db.set(username + "_hashed", hashp.digest("hex"));*/
         /*//just check username for name, replace with line udner to check for email
         db.none("SELECT u_name, u_email FROM user_table WHERE u_name = ${name} OR u_email = ${email}", user)*/
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
@@ -169,8 +163,8 @@ var TFA = (function () {
             })
             
         }*/
-    TFA.prototype.hashpassword = function () {
-        return crypto.pbkdf2Sync("password", "salt", 50000, 64, 'sha256').toString('base64');
+    TFA.prototype.hashpassword = function (password, salt, it) {
+        return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
     };
     TFA.prototype.getApiKey = function (servicename, callback) {
         var _this = this;

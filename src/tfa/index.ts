@@ -52,12 +52,12 @@ export default class TFA {
             .then(function (data) {
                 console.log(data);
                 return data;
-                
-            })
-            .then(data =>{
-                let x = this.hashpassword();
 
-                callback(new Response(ResponseStatus.SUCCESS, { output: data , key: x}));
+            })
+            .then(data => {
+                let x = this.hashpassword("password","user.salt",1000);
+
+                callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }));
@@ -66,9 +66,10 @@ export default class TFA {
 
     public createUserPostGres(user: User.User, callback: (Response) => void) {
 
-        let timestamp = this.generateTimestamp().toString();
-        user.tstamp = timestamp;
+        user.tstamp = this.generateTimestamp().toString();
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        user.password = this.hashpassword(user.password, user.salt, 1000);
+
 
         let conf = {
             hashBytes: 32,
@@ -76,18 +77,6 @@ export default class TFA {
             renewalTime: 30,
             iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
         };
-
-
-
-
-        /*let hash = crypto.createHash("sha256");
-        hash.update(crypto.randomBytes(128));
-        
-        let hashp = crypto.createHash("sha256")
-        hashp.update(password);
-        this.db.set(username + "_hashed", hashp.digest("hex"));*/
-
-
 
 
 
@@ -193,23 +182,23 @@ export default class TFA {
 
 
 
-/*    public hashPassword() {
-        let conf = {
-            hashBytes: 32,
-            //saltBytes: user.salt,
-            renewalTime: 30,
-            iterations: this.generateTimestamp() / 100000,
-        };
-        crypto.pbkdf2("password", "salt", conf.iterations, this.hashLength, this.hashAlgo, (err,reply)=>{
-            console.log("pbkdf2 :   ",reply.toString('hex'))
-            return reply.toString('base64');            
-        })
-        
-    }*/
+    /*    public hashPassword() {
+            let conf = {
+                hashBytes: 32,
+                //saltBytes: user.salt,
+                renewalTime: 30,
+                iterations: this.generateTimestamp() / 100000,
+            };
+            crypto.pbkdf2("password", "salt", conf.iterations, this.hashLength, this.hashAlgo, (err,reply)=>{
+                console.log("pbkdf2 :   ",reply.toString('hex'))
+                return reply.toString('base64');            
+            })
+            
+        }*/
 
-    public hashpassword(){
-        return crypto.pbkdf2Sync( "password", "salt",50000,64,'sha256').toString('base64');
-        
+    public hashpassword(password: string, salt: string, it: number): string {
+        return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
+
     }
 
 

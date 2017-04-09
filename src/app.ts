@@ -141,6 +141,11 @@ app.post("/getAll", function (req, res, next) {
         res.json({ resp: response });
     })
 })
+app.get("*",function(req,res){
+    res.send('404');
+});
+
+
 
 
 /*let server = https.createServer(credentials, app).listen(443, function () {
