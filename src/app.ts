@@ -7,6 +7,13 @@ import * as http from "http";
 import * as body from "body-parser";
 import * as crypto from "crypto";
 import * as path from "path";
+import * as User from "./models/users";
+
+let obj: User.User;
+
+
+
+
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -61,10 +68,10 @@ app.post("/registerWebService/", function (req, res) {
     })
 
 });
-app.post("/getApiKey/", function(req, res){
+app.post("/getApiKey/", function (req, res) {
     console.log("Retrieving Api key");
     console.log(req.body.wname);
-    twofactor.getApiKey(req.body.wname, function(response){
+    twofactor.getApiKey(req.body.wname, function (response) {
         res.json(response);
     });
 })
@@ -75,23 +82,63 @@ app.post("/check/", function (req, res) {
 });
 app.post("/createUser/", function (req, res) {
     twofactor.createUser(req.body.username, req.body.password, function (response) {
-        res.json({resp: response });
+        res.json({ resp: response });
     });
 });
 
-app.post("/checkUser/", function(req,res){
-    twofactor.checkUser(req.body.username, req.body.password, function(response){
-        res.json({resp: response});
+app.post("/checkUser/", function (req, res) {
+    console.log("DOING THIS??????????????????????????????");
+    twofactor.checkUser(req.body.username, req.body.password, function (response) {
+        res.json({ resp: response });
     });
 });
 
-app.post("/checkCode/", function(req,res){
-    twofactor.checkCode(req.body.username, req.body.code, function(response){
-        res.json({resp: response});
-        
+app.post("/checkCode/", function (req, res) {
+    twofactor.checkCode(req.body.username, req.body.code, function (response) {
+        res.json({ resp: response });
+
     });
 });
 
+app.get("/getAll", function (req, res, next) {
+    twofactor.getAll(function (response) {
+        res.json({ resp: response });
+    })
+})
+app.post("/getAll", function (req, res, next) {
+
+    /*    let obj= new User.User(req.body.username,
+                                req.body.fname,
+                                req.body.lname,
+                                req.body.password,
+                                req.body.dob,
+                                req.body.email,
+                                req.body.password);*/
+
+
+
+    console.log(req.body.username);
+        let obj= new User.User(req.body.username,
+                            null,
+                            null,
+                            null,
+                            null,
+                            req.body.password,
+                            null);
+                            console.log(obj);
+    //obj.fname   = req.body.fname;
+    //obj.lname   = req.body.lname;
+    //obj.dob     = req.body.dob;
+    //obj.email   = req.body.email;
+    //obj.password= req.body.password;
+
+
+
+
+    twofactor.createUserPostGres(obj, function (response) {
+        res.json({ resp: response });
+    })
+})
 
 
 /*let server = https.createServer(credentials, app).listen(443, function () {

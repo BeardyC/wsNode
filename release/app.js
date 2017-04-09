@@ -7,6 +7,8 @@ var tfa_1 = require("./tfa");
 var https = require("https");
 var body = require("body-parser");
 var crypto = require("crypto");
+var User = require("./models/users");
+var obj;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var app = express();
 app.use(body.urlencoded({ extended: false }));
@@ -68,12 +70,38 @@ app.post("/createUser/", function (req, res) {
     });
 });
 app.post("/checkUser/", function (req, res) {
+    console.log("DOING THIS??????????????????????????????");
     twofactor.checkUser(req.body.username, req.body.password, function (response) {
         res.json({ resp: response });
     });
 });
 app.post("/checkCode/", function (req, res) {
     twofactor.checkCode(req.body.username, req.body.code, function (response) {
+        res.json({ resp: response });
+    });
+});
+app.get("/getAll", function (req, res, next) {
+    twofactor.getAll(function (response) {
+        res.json({ resp: response });
+    });
+});
+app.post("/getAll", function (req, res, next) {
+    /*    let obj= new User.User(req.body.username,
+                                req.body.fname,
+                                req.body.lname,
+                                req.body.password,
+                                req.body.dob,
+                                req.body.email,
+                                req.body.password);*/
+    console.log(req.body.username);
+    var obj = new User.User(req.body.username, null, null, null, null, req.body.password, null);
+    console.log(obj);
+    //obj.fname   = req.body.fname;
+    //obj.lname   = req.body.lname;
+    //obj.dob     = req.body.dob;
+    //obj.email   = req.body.email;
+    //obj.password= req.body.password;
+    twofactor.createUserPostGres(obj, function (response) {
         res.json({ resp: response });
     });
 });
