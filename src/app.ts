@@ -118,13 +118,15 @@ app.post("/getAll", function (req, res, next) {
 
 
     console.log(req.body.username);
+    
         let obj= new User.User(req.body.username,
-                            null,
-                            null,
-                            null,
-                            null,
+                            "a",
+                            "b",
+                            "c",
+                            "email",
                             req.body.password,
-                            null);
+                            "e",
+                            "0");
                             console.log(obj);
     //obj.fname   = req.body.fname;
     //obj.lname   = req.body.lname;

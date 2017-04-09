@@ -51,7 +51,13 @@ export default class TFA {
         db.any('select * from user_table')
             .then(function (data) {
                 console.log(data);
-                callback(new Response(ResponseStatus.SUCCESS, { output: data }));
+                return data;
+                
+            })
+            .then(data =>{
+                let x = this.hashpassword();
+
+                callback(new Response(ResponseStatus.SUCCESS, { output: data , key: x}));
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }));
@@ -59,61 +65,78 @@ export default class TFA {
     }
 
     public createUserPostGres(user: User.User, callback: (Response) => void) {
-        console.log("Name passed    :   ", user.name);
-        console.log("password passed    :   ", user.password);
 
-        db.one('select * from user_table where u_name = ${name}', {name: user.name})
-            .then(data => {
-                console.log("FOUND IT");
-                let x = data;
-                //callback(new Response(ResponseStatus.SUCCESS, {data: "Found it"}));
+        let timestamp = this.generateTimestamp().toString();
+        user.tstamp = timestamp;
+        user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
 
-                   //user.tstamp = this.generateTimestamp();
-                   //console.log("USER GENERATING TIMESTAMP....   :   ", user.tstamp);
-                   /* db.none('insert into user_table(u_name, u_salt, u_hashed, u_fname, u_lname, u_dob, u_email, u_timestamp)' +
-                        'values (${name},${fname},${lname},${dob},${email},${password},${},)')
-                        .then(function () {
-                            callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted record!' }));
-                        })
-                        .catch(function (err) {
-                            callback(new Response(ResponseStatus.ERROR, { data: err }));
-                        })*/
-                    return x;
-                        
+        let conf = {
+            hashBytes: 32,
+            saltBytes: user.salt,
+            renewalTime: 30,
+            iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
+        };
 
-            })
-            .then(x => {
-                console.log("in here");
-                user.tstamp = this.generateTimestamp();
-                console.log(user.tstamp);
-                console.log('DATA')
-                console.log(x);
-                callback(new Response(ResponseStatus.SUCCESS, {data: "Found it and generated!", returned: x}));
-                
-            })
 
-/*
-        user.tstamp = this.generateTimestamp();
-        db.none('insert into user_table(u_name, u_salt, u_hashed, u_fname, u_lname, u_dob, u_email, u_timestamp)' +
-            'values (${name},${fname},${lname},${dob},${email},${password},${},)')
+
+
+        /*let hash = crypto.createHash("sha256");
+        hash.update(crypto.randomBytes(128));
+        
+        let hashp = crypto.createHash("sha256")
+        hashp.update(password);
+        this.db.set(username + "_hashed", hashp.digest("hex"));*/
+
+
+
+
+
+        /*//just check username for name, replace with line udner to check for email
+        db.none("SELECT u_name, u_email FROM user_table WHERE u_name = ${name} OR u_email = ${email}", user)*/
+        db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
-                callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted record!' }));
-            })*/
-            .catch(function (err) {
-                console.log("DIDNT FIND IT");
-                callback(new Response(ResponseStatus.ERROR, { data: err }));
+
+
+                console.log(user);
+                db.none("INSERT INTO user_table(u_name, u_salt, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
+                    "VALUES(${name}, ${salt}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
+                    .then(function () {
+                        //console.log(data);
+                        console.log('Inserted   :   ', user);
+                        callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted  user' }))
+                    }).catch(function (err) {
+
+                        callback(new Response(ResponseStatus.ERROR, { data: 'ERROR INSERTING', err: err }));
+                    })
+
+
+            }).catch(function (err) {
+                console.log("User already exists");
+                callback(new Response(ResponseStatus.ERROR, { data: 'User already exists', err: err }));
             })
+
+
+
+
+        /*})*/
+
+        /*
+                user.tstamp = this.generateTimestamp();
+                db.none('insert into user_table(u_name, u_salt, u_hashed, u_fname, u_lname, u_dob, u_email, u_timestamp)' +
+                    'values (${name},${fname},${lname},${dob},${email},${password},${},)')
+                    .then(function () {
+                        callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted record!' }));
+                    })*/
+        /*            .catch(function (err) {
+                        console.log("DIDNT FIND IT");
+                        callback(new Response(ResponseStatus.ERROR, { data: 'Users already exists', err: err }));
+                    })*/
     }
 
 
     public createUser(username: string, password: string, callback: (Response) => void) {
         this.db.get(username, (err, reply) => {
-            console.log("Username   :   ", username);
-            console.log("Password   :   ", password);
-            console.log(err, reply);
-            console.log("DONE THIND HERE");
             if (reply === null) {
-
                 let hash = crypto.createHash("sha256");
                 hash.update(crypto.randomBytes(128));
                 this.db.set(username, this.generateTimestamp());
@@ -158,9 +181,9 @@ export default class TFA {
             //let hash = crypto.createHash("sha256");
 
             this.db.set(servicename, servicename);
-            let x = this.hash(password);
-            console.log("x  :   ", x);
-            this.db.set(servicename + "_password", this.hash(password));
+            //let x = this.hash(password);
+            //console.log("x  :   ", x);
+            //this.db.set(servicename + "_password", this.hash(password));
             this.db.set(servicename + "_apiKey", apikey);
 
             callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
@@ -168,23 +191,26 @@ export default class TFA {
         });
     }
 
-    public hash1(data: string, callback) {
-        const hash = crypto.createHash('sha256');
-        console.log("DATA   :   ", data)
-        console.log("Hashing    :   ", hash.update(data));
 
-        callback(hash.digest("hex"));
+
+/*    public hashPassword() {
+        let conf = {
+            hashBytes: 32,
+            //saltBytes: user.salt,
+            renewalTime: 30,
+            iterations: this.generateTimestamp() / 100000,
+        };
+        crypto.pbkdf2("password", "salt", conf.iterations, this.hashLength, this.hashAlgo, (err,reply)=>{
+            console.log("pbkdf2 :   ",reply.toString('hex'))
+            return reply.toString('base64');            
+        })
+        
+    }*/
+
+    public hashpassword(){
+        return crypto.pbkdf2Sync( "password", "salt",50000,64,'sha256').toString('base64');
+        
     }
-
-
-    public hash(data: string) {
-        const hash = crypto.createHash('sha256');
-        console.log("DATA   :   ", data)
-        console.log("Hashing    :   ", hash.update(data));
-
-        return (hash.digest("hex").toString());
-    }
-
 
 
     public getApiKey(servicename: string, callback: (Response) => void) {
