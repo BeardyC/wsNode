@@ -12,7 +12,7 @@ var cn = {
     host: 'localhost',
     port: '5432',
     database: 'otp_users',
-    user: 'xyz',
+    user: 'postgres',
     password: 'admin'
 };
 //var connString = 'postgres://localhost:5432/otp_users';
@@ -60,8 +60,25 @@ var TFA = (function () {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
         });
     };
+    TFA.prototype.verifyPassword = function (user, callback) {
+        console.log(user);
+        var x = this;
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
+            var serverHash = x.hashpassword(user.password, data.u_salt, 1000);
+            console.log(data);
+            console.log("HASHED FROM DATABASE:  ", data.p_hash);
+            var y = x.hashpassword(user.password, data.u_salt, 1000);
+            console.log("HASHED FROM SERVER:    ", y);
+            callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { err: err }));
+        });
+    };
     TFA.prototype.createUserPostGres = function (user, callback) {
         user.tstamp = this.generateTimestamp().toString();
+        console.log(user.tstamp);
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
         user.password = this.hashpassword(user.password, user.salt, 1000);
         var conf = {
@@ -88,18 +105,6 @@ var TFA = (function () {
             console.log("User already exists");
             callback(new Response(ResponseStatus.ERROR, { data: 'User already exists', err: err }));
         });
-        /*})*/
-        /*
-                user.tstamp = this.generateTimestamp();
-                db.none('insert into user_table(u_name, u_salt, u_hashed, u_fname, u_lname, u_dob, u_email, u_timestamp)' +
-                    'values (${name},${fname},${lname},${dob},${email},${password},${},)')
-                    .then(function () {
-                        callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted record!' }));
-                    })*/
-        /*            .catch(function (err) {
-                        console.log("DIDNT FIND IT");
-                        callback(new Response(ResponseStatus.ERROR, { data: 'Users already exists', err: err }));
-                    })*/
     };
     TFA.prototype.createUser = function (username, password, callback) {
         var _this = this;
@@ -143,26 +148,10 @@ var TFA = (function () {
             console.log(apikey);
             //let hash = crypto.createHash("sha256");
             _this.db.set(servicename, servicename);
-            //let x = this.hash(password);
-            //console.log("x  :   ", x);
-            //this.db.set(servicename + "_password", this.hash(password));
             _this.db.set(servicename + "_apiKey", apikey);
             callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
         });
     };
-    /*    public hashPassword() {
-            let conf = {
-                hashBytes: 32,
-                //saltBytes: user.salt,
-                renewalTime: 30,
-                iterations: this.generateTimestamp() / 100000,
-            };
-            crypto.pbkdf2("password", "salt", conf.iterations, this.hashLength, this.hashAlgo, (err,reply)=>{
-                console.log("pbkdf2 :   ",reply.toString('hex'))
-                return reply.toString('base64');
-            })
-            
-        }*/
     TFA.prototype.hashpassword = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
     };

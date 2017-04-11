@@ -12,7 +12,7 @@ let cn = {
     host: 'localhost',
     port: '5432',
     database: 'otp_users',
-    user: 'xyz',
+    user: 'postgres',
     password: 'admin'
 };
 //var connString = 'postgres://localhost:5432/otp_users';
@@ -64,9 +64,33 @@ export default class TFA {
             });
     }
 
+    public verifyPassword(user:User.User, callback: (Response)=>void){
+        console.log(user);
+        let x = this;
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}",user)
+        .then(function(data){
+            
+            let serverHash = x.hashpassword(user.password,data.u_salt,1000);
+            
+            console.log(data);
+            console.log("HASHED FROM DATABASE:  ",data.p_hash);
+            let y = x.hashpassword(user.password,data.u_salt,1000);
+            console.log("HASHED FROM SERVER:    ", y);
+            
+
+
+            
+            callback(new Response(ResponseStatus.SUCCESS, {data: data}));
+        })
+        .catch(function(err){
+            callback(new Response(ResponseStatus.ERROR, {err: err}));
+        });
+    }
+
     public createUserPostGres(user: User.User, callback: (Response) => void) {
 
         user.tstamp = this.generateTimestamp().toString();
+        console.log(user.tstamp);
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
         user.password = this.hashpassword(user.password, user.salt, 1000);
 
@@ -77,15 +101,10 @@ export default class TFA {
             renewalTime: 30,
             iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
         };
-
-
-
         /*//just check username for name, replace with line udner to check for email
         db.none("SELECT u_name, u_email FROM user_table WHERE u_name = ${name} OR u_email = ${email}", user)*/
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
-
-
                 console.log(user);
                 db.none("INSERT INTO user_table(u_name, u_salt, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
                     "VALUES(${name}, ${salt}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
@@ -103,23 +122,6 @@ export default class TFA {
                 console.log("User already exists");
                 callback(new Response(ResponseStatus.ERROR, { data: 'User already exists', err: err }));
             })
-
-
-
-
-        /*})*/
-
-        /*
-                user.tstamp = this.generateTimestamp();
-                db.none('insert into user_table(u_name, u_salt, u_hashed, u_fname, u_lname, u_dob, u_email, u_timestamp)' +
-                    'values (${name},${fname},${lname},${dob},${email},${password},${},)')
-                    .then(function () {
-                        callback(new Response(ResponseStatus.SUCCESS, { data: 'Inserted record!' }));
-                    })*/
-        /*            .catch(function (err) {
-                        console.log("DIDNT FIND IT");
-                        callback(new Response(ResponseStatus.ERROR, { data: 'Users already exists', err: err }));
-                    })*/
     }
 
 
@@ -142,6 +144,9 @@ export default class TFA {
             }
         });
     }
+
+    
+
 
     public checkUser(username: string, password: string, callback: (Response) => void) {
         this.db.get(username, (err, reply) => {
@@ -170,9 +175,6 @@ export default class TFA {
             //let hash = crypto.createHash("sha256");
 
             this.db.set(servicename, servicename);
-            //let x = this.hash(password);
-            //console.log("x  :   ", x);
-            //this.db.set(servicename + "_password", this.hash(password));
             this.db.set(servicename + "_apiKey", apikey);
 
             callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
@@ -180,21 +182,6 @@ export default class TFA {
         });
     }
 
-
-
-    /*    public hashPassword() {
-            let conf = {
-                hashBytes: 32,
-                //saltBytes: user.salt,
-                renewalTime: 30,
-                iterations: this.generateTimestamp() / 100000,
-            };
-            crypto.pbkdf2("password", "salt", conf.iterations, this.hashLength, this.hashAlgo, (err,reply)=>{
-                console.log("pbkdf2 :   ",reply.toString('hex'))
-                return reply.toString('base64');            
-            })
-            
-        }*/
 
     public hashpassword(password: string, salt: string, it: number): string {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');

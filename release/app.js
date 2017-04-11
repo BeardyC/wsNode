@@ -86,22 +86,16 @@ app.get("/getAll", function (req, res, next) {
     });
 });
 app.post("/getAll", function (req, res, next) {
-    /*    let obj= new User.User(req.body.username,
-                                req.body.fname,
-                                req.body.lname,
-                                req.body.password,
-                                req.body.dob,
-                                req.body.email,
-                                req.body.password);*/
     console.log(req.body.username);
     var obj = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
     console.log(obj);
-    //obj.fname   = req.body.fname;
-    //obj.lname   = req.body.lname;
-    //obj.dob     = req.body.dob;
-    //obj.email   = req.body.email;
-    //obj.password= req.body.password;
     twofactor.createUserPostGres(obj, function (response) {
+        res.json({ resp: response });
+    });
+});
+app.post("/getSpec", function (req, res) {
+    var obj = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
+    twofactor.verifyPassword(obj, function (response) {
         res.json({ resp: response });
     });
 });
