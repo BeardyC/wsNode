@@ -55,7 +55,7 @@ export default class TFA {
 
             })
             .then(data => {
-                let x = this.hashpassword("password","user.salt",1000);
+                let x = this.hashpassword("password", "user.salt", 1000);
 
                 callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
             })
@@ -64,27 +64,28 @@ export default class TFA {
             });
     }
 
-    public verifyPassword(user:User.User, callback: (Response)=>void){
+    public verifyPassword(user: User.User, callback: (Response) => void) {
         console.log(user);
         let x = this;
-        db.one("SELECT * FROM user_table WHERE u_name = ${name}",user)
-        .then(function(data){
-            
-            let serverHash = x.hashpassword(user.password,data.u_salt,1000);
-            
-            console.log(data);
-            console.log("HASHED FROM DATABASE:  ",data.p_hash);
-            let y = x.hashpassword(user.password,data.u_salt,1000);
-            console.log("HASHED FROM SERVER:    ", y);
-            
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
 
+                let serverHash = x.hashpassword(user.password, data.u_salt, 1000);
 
-            
-            callback(new Response(ResponseStatus.SUCCESS, {data: data}));
-        })
-        .catch(function(err){
-            callback(new Response(ResponseStatus.ERROR, {err: err}));
-        });
+                console.log(data);
+                console.log("HASHED FROM DATABASE:  ", data.p_hash);
+                //let y = x.hashpassword(user.password,data.u_salt,1000);
+                //console.log("HASHED FROM SERVER:    ", y);
+
+                if (serverHash == data.p_hash) {
+                    callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: true }));
+                } else {
+                    callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: false }));
+                }
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { err: err }));
+            });
     }
 
     public createUserPostGres(user: User.User, callback: (Response) => void) {
@@ -92,22 +93,16 @@ export default class TFA {
         user.tstamp = this.generateTimestamp().toString();
         console.log(user.tstamp);
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        user.secret = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
         user.password = this.hashpassword(user.password, user.salt, 1000);
 
-
-        let conf = {
-            hashBytes: 32,
-            saltBytes: user.salt,
-            renewalTime: 30,
-            iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
-        };
         /*//just check username for name, replace with line udner to check for email
         db.none("SELECT u_name, u_email FROM user_table WHERE u_name = ${name} OR u_email = ${email}", user)*/
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
                 console.log(user);
-                db.none("INSERT INTO user_table(u_name, u_salt, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
-                    "VALUES(${name}, ${salt}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
+                db.none("INSERT INTO user_table(u_name, u_salt, u_secret, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
+                    "VALUES(${name}, ${salt}, ${secret}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
                     .then(function () {
                         //console.log(data);
                         console.log('Inserted   :   ', user);
@@ -125,46 +120,28 @@ export default class TFA {
     }
 
 
-    public createUser(username: string, password: string, callback: (Response) => void) {
-        this.db.get(username, (err, reply) => {
-            if (reply === null) {
-                let hash = crypto.createHash("sha256");
-                hash.update(crypto.randomBytes(128));
-                this.db.set(username, this.generateTimestamp());
-                this.db.set(username + "_salt", hash.digest("hex"));
-                let hashp = crypto.createHash("sha256")
-                hashp.update(password);
-                this.db.set(username + "_hashed", hashp.digest("hex"));
-
-                callback(new Response(ResponseStatus.SUCCESS, "User created successfuly"));
-
-            } else {
-
-                callback(new Response(ResponseStatus.ERROR, "User already exists"));
-            }
-        });
-    }
-
-    
-
-
-    public checkUser(username: string, password: string, callback: (Response) => void) {
-        this.db.get(username, (err, reply) => {
-            console.log(err, reply);
-            console.log("Username  :   ", reply);
-            this.db.get(username + "_salt", (err, reply) => {
-                console.log("User Salt  :   ", reply);
-                this.db.get(username + "_hashed", (err, reply) => {
-                    console.log("User hash  :   ", reply);
-                    callback(new Response(ResponseStatus.SUCCESS, "Yay"));
-                })
-
-            })
-        })
-    }
 
     public checkCode(username: string, code: string, callback: (Response) => void) {
-
+        let _this = this;
+        db.one("SELECT u_salt,u_timestamp FROM user_table WHERE u_name = ${name}", { name: username })
+            .then(function (data) {
+                console.log("QUERY EXECUTEd");
+                console.log(_this.generateTimestamp());
+                console.log(data.u_timestamp);
+                console.log("GENERATING ... :   ", _this.generateOtp(data.username))
+                let it = Number(data.u_timestamp) - _this.generateTimestamp() ;
+                console.log(it);
+                //_this.calculateOTP(data.u_secret,u_salt,)
+                callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+            })
+            .catch(function (err) {
+                console.log("COULDNT EXECUTE QUERY")
+                callback(new Response(ResponseStatus.ERROR, { data: err }))
+            })
+    }
+    public generateOtp(username: string): string {
+        
+        return "A";
     }
 
     public createWebservice(servicename: string, password: string, callback: (Response) => void) {
@@ -188,6 +165,10 @@ export default class TFA {
 
     }
 
+    public calculateOTP(password: string, salt: string, it: number): string {
+        return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex')
+    }
+
 
     public getApiKey(servicename: string, callback: (Response) => void) {
         this.db.get(servicename, (err, reply) => {
@@ -205,6 +186,8 @@ export default class TFA {
             }
         })
     }
+
+
 
     public generate(username: string, callback: (Response) => void) {
         this.db.get(username, (err, reply) => {
@@ -227,6 +210,7 @@ export default class TFA {
             }
         });
     }
+
 
 
 

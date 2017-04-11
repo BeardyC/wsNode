@@ -68,9 +68,14 @@ var TFA = (function () {
             var serverHash = x.hashpassword(user.password, data.u_salt, 1000);
             console.log(data);
             console.log("HASHED FROM DATABASE:  ", data.p_hash);
-            var y = x.hashpassword(user.password, data.u_salt, 1000);
-            console.log("HASHED FROM SERVER:    ", y);
-            callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+            //let y = x.hashpassword(user.password,data.u_salt,1000);
+            //console.log("HASHED FROM SERVER:    ", y);
+            if (serverHash == data.p_hash) {
+                callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: true }));
+            }
+            else {
+                callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: false }));
+            }
         })
             .catch(function (err) {
             callback(new Response(ResponseStatus.ERROR, { err: err }));
@@ -80,20 +85,15 @@ var TFA = (function () {
         user.tstamp = this.generateTimestamp().toString();
         console.log(user.tstamp);
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        user.secret = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
         user.password = this.hashpassword(user.password, user.salt, 1000);
-        var conf = {
-            hashBytes: 32,
-            saltBytes: user.salt,
-            renewalTime: 30,
-            iterations: (Number(user.tstamp) - this.generateTimestamp()) / 30,
-        };
         /*//just check username for name, replace with line udner to check for email
         db.none("SELECT u_name, u_email FROM user_table WHERE u_name = ${name} OR u_email = ${email}", user)*/
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
             console.log(user);
-            db.none("INSERT INTO user_table(u_name, u_salt, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
-                "VALUES(${name}, ${salt}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
+            db.none("INSERT INTO user_table(u_name, u_salt, u_secret, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
+                "VALUES(${name}, ${salt}, ${secret}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
                 .then(function () {
                 //console.log(data);
                 console.log('Inserted   :   ', user);
@@ -106,39 +106,26 @@ var TFA = (function () {
             callback(new Response(ResponseStatus.ERROR, { data: 'User already exists', err: err }));
         });
     };
-    TFA.prototype.createUser = function (username, password, callback) {
-        var _this = this;
-        this.db.get(username, function (err, reply) {
-            if (reply === null) {
-                var hash = crypto.createHash("sha256");
-                hash.update(crypto.randomBytes(128));
-                _this.db.set(username, _this.generateTimestamp());
-                _this.db.set(username + "_salt", hash.digest("hex"));
-                var hashp = crypto.createHash("sha256");
-                hashp.update(password);
-                _this.db.set(username + "_hashed", hashp.digest("hex"));
-                callback(new Response(ResponseStatus.SUCCESS, "User created successfuly"));
-            }
-            else {
-                callback(new Response(ResponseStatus.ERROR, "User already exists"));
-            }
-        });
-    };
-    TFA.prototype.checkUser = function (username, password, callback) {
-        var _this = this;
-        this.db.get(username, function (err, reply) {
-            console.log(err, reply);
-            console.log("Username  :   ", reply);
-            _this.db.get(username + "_salt", function (err, reply) {
-                console.log("User Salt  :   ", reply);
-                _this.db.get(username + "_hashed", function (err, reply) {
-                    console.log("User hash  :   ", reply);
-                    callback(new Response(ResponseStatus.SUCCESS, "Yay"));
-                });
-            });
-        });
-    };
     TFA.prototype.checkCode = function (username, code, callback) {
+        var _this = this;
+        db.one("SELECT u_salt,u_timestamp FROM user_table WHERE u_name = ${name}", { name: username })
+            .then(function (data) {
+            console.log("QUERY EXECUTEd");
+            console.log(_this.generateTimestamp());
+            console.log(data.u_timestamp);
+            console.log("GENERATING ... :   ", _this.generateOtp(data.username));
+            var it = Number(data.u_timestamp) - _this.generateTimestamp();
+            console.log(it);
+            //_this.calculateOTP(data.u_secret,u_salt,)
+            callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+        })
+            .catch(function (err) {
+            console.log("COULDNT EXECUTE QUERY");
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.generateOtp = function (username) {
+        return "A";
     };
     TFA.prototype.createWebservice = function (servicename, password, callback) {
         var _this = this;
@@ -153,6 +140,9 @@ var TFA = (function () {
         });
     };
     TFA.prototype.hashpassword = function (password, salt, it) {
+        return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
+    };
+    TFA.prototype.calculateOTP = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
     };
     TFA.prototype.getApiKey = function (servicename, callback) {

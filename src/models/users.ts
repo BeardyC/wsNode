@@ -7,8 +7,9 @@ export class User {
     public password : string = 'password';
     public tstamp   : string = '0';
     public salt     : string = 'salt';
+    public secret   : string = 'secret';
 
-    constructor(name:string = 'name' , fname:string = 'fname', lname:string = 'lname', dob:string = 'dob' , email:string = 'email' , password:string = 'password',salt:string = 'salt', tstamp:string = '0') {
+    constructor(name:string = 'name' , fname:string = 'fname', lname:string = 'lname', dob:string = 'dob' , email:string = 'email' , password:string = 'password',salt:string = 'salt', tstamp:string = '0', secret:string = 'secret') {
         this.name       = name;
         this.fname      = fname;
         this.lname      = lname;
@@ -17,6 +18,7 @@ export class User {
         this.password   = password;
         this.salt       = salt;
         this.tstamp     = tstamp;
+        this.secret     = secret;
     }
 
 }

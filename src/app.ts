@@ -31,9 +31,9 @@ let credentials = {
 
 app.use(express.static(__dirname + "/views"));
 //app.user(express.static(path.join(__dirname, '/')));
-app.get("/", function (req, res) {
-    res.status(200).sendFile(__dirname + "l/views/index.html");
-});
+/*app.get("/", function (req, res) {
+    res.status(200).sendFile(__dirname + "/views/index.html");
+});*/
 app.post("/encrypt", function (req, res) {
     console.log(req.body.name);
     //res.send(req.body.name);
@@ -80,18 +80,8 @@ app.post("/check/", function (req, res) {
     res.json("Welcome");
     console.log("Welcome,", req.body.name);
 });
-app.post("/createUser/", function (req, res) {
-    twofactor.createUser(req.body.username, req.body.password, function (response) {
-        res.json({ resp: response });
-    });
-});
 
-app.post("/checkUser/", function (req, res) {
-    console.log("DOING THIS??????????????????????????????");
-    twofactor.checkUser(req.body.username, req.body.password, function (response) {
-        res.json({ resp: response });
-    });
-});
+
 
 app.post("/checkCode/", function (req, res) {
     twofactor.checkCode(req.body.username, req.body.code, function (response) {
@@ -100,12 +90,12 @@ app.post("/checkCode/", function (req, res) {
     });
 });
 
-app.get("/getAll", function (req, res, next) {
+app.get("/getAll", function (req, res) {
     twofactor.getAll(function (response) {
         res.json({ resp: response });
     })
 })
-app.post("/getAll", function (req, res, next) {
+app.post("/getAll", function (req, res) {
 
     console.log(req.body.username);
     let obj = new User.User(req.body.username,
@@ -136,6 +126,20 @@ app.post("/getSpec", function(req,res){
     twofactor.verifyPassword(obj, function(response){
         res.json({resp: response});
     })
+})
+app.post("/verifyCode", function(req,res){
+    twofactor.checkCode(req.body.username,req.body.code,function(response){
+        res.json({resp:response});
+    })
+})
+
+app.post("/generate", function(req,res){
+    
+})
+
+app.post("/testPost", function(req,res){
+    console.log(req.body);
+    res.sendFile(__dirname + "/views/index.html");
 })
 app.get("*", function (req, res) {
     res.send('404');
