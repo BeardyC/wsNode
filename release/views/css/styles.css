@@ -34,9 +34,10 @@
 #navigation {
   z-index: 100;
   position: absolute;
-  color:white;
+  color:#FFF;
   top: 20px;
   width:100%;
+  min-width:100%;
 }
 
 
