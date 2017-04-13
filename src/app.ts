@@ -95,17 +95,19 @@ app.get("/getAll", function (req, res) {
         res.json({ resp: response });
     })
 })
-app.post("/getAll", function (req, res) {
+
+app.get("/createUser/:name:/:fname/:lname/:dob/:email/:password")
+
+app.post("/createUser", function (req, res) {
 
     console.log(req.body.username);
-    let obj = new User.User(req.body.username,
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "email",
-                                        req.body.password,
-                                        "e",
-                                        "0");
+    let obj = new User.User(req.params.name,
+                                        req.params.fname,
+                                        req.params.lname,
+                                        req.params.dob,
+                                        req.params.email,
+                                        req.body.password
+                                        );
 
     console.log(obj);
 
@@ -113,6 +115,10 @@ app.post("/getAll", function (req, res) {
         res.json({ resp: response });
     })
 })
+
+app.post("/")
+
+
 
 app.post("/getSpec", function(req,res){
         let obj = new User.User(req.body.username,

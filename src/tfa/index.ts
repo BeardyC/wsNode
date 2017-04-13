@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as uuid from 'uuid';
 import * as promise from 'bluebird';
 import * as User from "../models/users";
+import * as WS from "../models/webService";
 
 let options = {
     promiseLib: promise
@@ -88,6 +89,24 @@ export default class TFA {
             });
     }
 
+    public registerWS(ws: WS.WebService, callback: (Response) => void) {
+        ws.timestamp = this.generateTimestamp.toString();
+        ws.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        ws.password = this.hashpassword(ws.password, ws.salt, 1000);
+        ws.apikey = uuid.v4();
+        console.log(ws);
+        db.none("INSERT INTO ws_table(ws_name, ws_salt, ws_hash, ws_email, ws_timestamp, ws_apikey, ws_apiValidity)" +
+            "VALUES(${name}, ${salt}, ${password}, ${email}, ${timestamp}, ${apikey}, ${apivalidity})", ws)
+            .then(function(){
+                console.log("INSERTED   :   ",ws);
+                callback(new Response(ResponseStatus.SUCCESS, { data: 'Successfully registered webservice' }))
+            })
+            .catch(function(err){
+              callback(new Response(ResponseStatus.ERROR, { data: err }))  
+            })
+
+    }
+
     public createUserPostGres(user: User.User, callback: (Response) => void) {
 
         user.tstamp = this.generateTimestamp().toString();
@@ -101,6 +120,7 @@ export default class TFA {
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
                 console.log(user);
+                
                 db.none("INSERT INTO user_table(u_name, u_salt, u_secret, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
                     "VALUES(${name}, ${salt}, ${secret}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
                     .then(function () {
@@ -129,7 +149,7 @@ export default class TFA {
                 console.log(_this.generateTimestamp());
                 console.log(data.u_timestamp);
                 console.log("GENERATING ... :   ", _this.generateOtp(data.username))
-                let it = Number(data.u_timestamp) - _this.generateTimestamp() ;
+                let it = Number(data.u_timestamp) - _this.generateTimestamp();
                 console.log(it);
                 //_this.calculateOTP(data.u_secret,u_salt,)
                 callback(new Response(ResponseStatus.SUCCESS, { data: data }));
@@ -140,7 +160,7 @@ export default class TFA {
             })
     }
     public generateOtp(username: string): string {
-        
+
         return "A";
     }
 
