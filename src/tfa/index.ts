@@ -97,7 +97,7 @@ export default class TFA {
                 }
             })
             .catch(function (err) {
-                callback(new Response(ResponseStatus.ERROR, { err: err, equal:false}));
+                callback(new Response(ResponseStatus.ERROR, { err: err, equal: false }));
             });
     }
 
@@ -110,11 +110,11 @@ export default class TFA {
 
                 let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
                 let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-                let dateTime = date+' '+time;
-                let message = "API request made by "+ wsname + " at " + dateTime;
-                callback(new Response(ResponseStatus.SUCCESS, { data: data, message: message, valid:true}));
+                let dateTime = date + ' ' + time;
+                let message = "API request made by " + wsname + " at " + dateTime;
+                callback(new Response(ResponseStatus.SUCCESS, { data: data, message: message, valid: true }));
             }).catch(function (err) {
-                callback(new Response(ResponseStatus.ERROR, { err: err, valid :false }));
+                callback(new Response(ResponseStatus.ERROR, { err: err, valid: false }));
             })
 
 
@@ -167,7 +167,6 @@ export default class TFA {
                         callback(new Response(ResponseStatus.ERROR, { data: 'ERROR INSERTING', err: err }));
                     })
 
-
             }).catch(function (err) {
                 console.log("User already exists");
                 callback(new Response(ResponseStatus.ERROR, { data: 'User already exists', err: err }));
@@ -180,48 +179,27 @@ export default class TFA {
         let _this = this;
         db.one("SELECT u_salt,u_timestamp FROM user_table WHERE u_name = ${name}", { name: username })
             .then(function (data) {
-                console.log("QUERY EXECUTEd");
-                console.log(_this.generateTimestamp());
-                console.log(data.u_timestamp);
-                console.log("GENERATING ... :   ", _this.generateOtp(data.username,function(data){
-                    console.log(data);
-                }));
-                console.log("CURRENT TIME:",_this.generateTimestamp());
-                console.log("TIMESTAMP:",data.u_timestamp);
-                
-                let it =  _this.generateTimestamp()- Number(data.u_timestamp);
-                console.log("ITERATIONS :   ",it);
-                //_this.calculateOTP(data.u_secret,u_salt,)
+                let it = _this.generateTimestamp() - Number(data.u_timestamp);
                 callback(new Response(ResponseStatus.SUCCESS, { data: data }));
             })
             .catch(function (err) {
-                console.log("COULDNT EXECUTE QUERY")
                 callback(new Response(ResponseStatus.ERROR, { data: err }))
             })
     }
-    public generateOtp(username: string, callback:(Response)=>void) {
+    public generateOtp(username: string, callback: (Response) => void) {
         console.log(username);
         let _this = this;
-        let user = new User.User(username,null,null,null,null,null,null,null,null);
+        let user = new User.User(username, null, null, null, null, null, null, null, null);
         console.log(user);
-        db.one("SELECT u_timestamp,u_salt, u_secret FROM user_table WHERE u_name = ${name}", {name:username})
-            .then(function(data){
-                console.log(data);
-
-                
-                
-                let it = ( _this.generateTimestamp()-Number(data.u_timestamp)) /_this.hashValidity;
-                console.log("ITERATIONS:    ",it);
-                console.log("DATA   :   ",data);
-                let x = crypto.pbkdf2Sync(data.u_secret,data.u_salt,it,20,_this.hashAlgo).toString('hex').substring(0,_this.hashLength+1);
-                callback(new Response(ResponseStatus.SUCCESS,{data:x}));
+        db.one("SELECT u_timestamp,u_salt, u_secret FROM user_table WHERE u_name = ${name}", { name: username })
+            .then(function (data) {
+                let it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
+                let x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
+                callback(new Response(ResponseStatus.SUCCESS, { data: x }));
             })
-            .catch(function(err){
-                console.log("ERROPR");
+            .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }))
             })
-
-        
     }
 
 
