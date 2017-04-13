@@ -48,7 +48,7 @@ export default class TFA {
         return Math.floor(new Date().getTime() / 1000);
     }
 
-    public getAll(callback: (Response) => void) {
+    public getUsers(callback: (Response) => void) {
         db.any('select * from user_table')
             .then(function (data) {
                 console.log(data);
@@ -64,6 +64,18 @@ export default class TFA {
                 callback(new Response(ResponseStatus.ERROR, { data: err }));
             });
     }
+
+    public getAllWS(callback: (Response) => void) {
+        db.any('SELECT * FROM ws_table')
+            .then(function (data) {
+                console.log(data);
+                callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            })
+    }
+
 
     public verifyPassword(user: User.User, callback: (Response) => void) {
         console.log(user);
@@ -85,29 +97,52 @@ export default class TFA {
                 }
             })
             .catch(function (err) {
-                callback(new Response(ResponseStatus.ERROR, { err: err }));
+                callback(new Response(ResponseStatus.ERROR, { err: err, equal:false}));
             });
     }
 
+    public verifyAPIkey(ws: WS.WebService, callback: (Response) => void) {
+
+        db.one("SELECT * FROM ws_table WHERE ws_apikey = ${apikey}", ws)
+            .then(function (data) {
+                let wsname = data.ws_name;
+                let today = new Date();
+
+                let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                let dateTime = date+' '+time;
+                let message = "API request made by "+ wsname + " at " + dateTime;
+                callback(new Response(ResponseStatus.SUCCESS, { data: data, message: message, valid:true}));
+            }).catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { err: err, valid :false }));
+            })
+
+
+    }
+
     public registerWS(ws: WS.WebService, callback: (Response) => void) {
-        ws.timestamp = this.generateTimestamp.toString();
+        ws.timestamp = this.generateTimestamp().toString();
         ws.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
         ws.password = this.hashpassword(ws.password, ws.salt, 1000);
         ws.apikey = uuid.v4();
         console.log(ws);
-        db.none("INSERT INTO ws_table(ws_name, ws_salt, ws_hash, ws_email, ws_timestamp, ws_apikey, ws_apiValidity)" +
-            "VALUES(${name}, ${salt}, ${password}, ${email}, ${timestamp}, ${apikey}, ${apivalidity})", ws)
-            .then(function(){
-                console.log("INSERTED   :   ",ws);
-                callback(new Response(ResponseStatus.SUCCESS, { data: 'Successfully registered webservice' }))
+        db.none("SELECT ws_name FROM ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+                db.none("INSERT INTO ws_table(ws_name, ws_salt, ws_hash, ws_email, ws_timestamp, ws_apikey, ws_apiValidity)" +
+                    "VALUES(${name}, ${salt}, ${password}, ${email}, ${timestamp}, ${apikey}, ${apivalidity})", ws)
+                    .then(function () {
+                        console.log("INSERTED   :   ", ws);
+                        callback(new Response(ResponseStatus.SUCCESS, { data: 'Successfully registered webservice' }))
+                    })
             })
-            .catch(function(err){
-              callback(new Response(ResponseStatus.ERROR, { data: err }))  
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }))
             })
+
 
     }
 
-    public createUserPostGres(user: User.User, callback: (Response) => void) {
+    public registerUser(user: User.User, callback: (Response) => void) {
 
         user.tstamp = this.generateTimestamp().toString();
         console.log(user.tstamp);
@@ -120,7 +155,7 @@ export default class TFA {
         db.none("SELECT u_name FROM user_table WHERE u_name = ${name}", user)
             .then(function () {
                 console.log(user);
-                
+
                 db.none("INSERT INTO user_table(u_name, u_salt, u_secret, p_hash, u_fname, u_lname, u_dob, u_email, u_timestamp)" +
                     "VALUES(${name}, ${salt}, ${secret}, ${password}, ${fname}, ${lname}, ${dob}, ${email}, ${tstamp})", user)
                     .then(function () {
@@ -164,21 +199,6 @@ export default class TFA {
         return "A";
     }
 
-    public createWebservice(servicename: string, password: string, callback: (Response) => void) {
-        this.db.get(servicename, (err, reply) => {
-            console.log(err, reply);
-            let apikey = uuid.v4();
-            console.log(apikey);
-            //let hash = crypto.createHash("sha256");
-
-            this.db.set(servicename, servicename);
-            this.db.set(servicename + "_apiKey", apikey);
-
-            callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
-
-        });
-    }
-
 
     public hashpassword(password: string, salt: string, it: number): string {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
@@ -187,24 +207,6 @@ export default class TFA {
 
     public calculateOTP(password: string, salt: string, it: number): string {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex')
-    }
-
-
-    public getApiKey(servicename: string, callback: (Response) => void) {
-        this.db.get(servicename, (err, reply) => {
-            if (reply === null) {
-                callback(new Response(ResponseStatus.ERROR, "Webservice not registered"));
-            } else {
-                this.db.get(servicename + "_apiKey", (err, reply) => {
-                    if (reply === null) {
-                        callback(new Response(ResponseStatus.ERROR, "Key Does not exist"));
-                    } else {
-                        let apikey = reply;
-                        callback(new Response(ResponseStatus.SUCCESS, { servicename: servicename, apiKey: apikey }));
-                    }
-                });
-            }
-        })
     }
 
 

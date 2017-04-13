@@ -20,15 +20,15 @@ var User = (function () {
         this.tstamp = '0';
         this.salt = 'salt';
         this.secret = 'secret';
-        this.name = name;
-        this.fname = fname;
-        this.lname = lname;
-        this.dob = dob;
-        this.email = email;
-        this.password = password;
-        this.salt = salt;
-        this.tstamp = tstamp;
-        this.secret = secret;
+        this.name = (name === null) ? 'name' : name;
+        this.fname = (fname === null) ? 'fname' : fname;
+        this.lname = (lname === null) ? 'lname' : lname;
+        this.dob = (dob === null) ? 'dob' : dob;
+        this.email = (email === null) ? 'email' : email;
+        this.password = (password === null) ? 'password' : password;
+        this.salt = (salt === null) ? 'salt' : salt;
+        this.tstamp = (tstamp === null) ? '1492085120' : tstamp;
+        this.secret = (name === null) ? 'name' : name;
     }
     return User;
 }());

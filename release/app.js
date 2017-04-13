@@ -8,6 +8,7 @@ var https = require("https");
 var body = require("body-parser");
 var crypto = require("crypto");
 var User = require("./models/users");
+var WS = require("./models/webService");
 var obj;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var app = express();
@@ -45,21 +46,6 @@ app.post("/encrypt", function (req, res) {
         res.json({ req: req.params, resp: response });
     });
 });*/
-app.post("/registerWebService/", function (req, res) {
-    console.log("Registering Webservice");
-    console.log(req.body.wname);
-    console.log(req.body.wpass);
-    twofactor.createWebservice(req.body.wname, req.body.wpassword, function (response) {
-        res.json(response);
-    });
-});
-app.post("/getApiKey/", function (req, res) {
-    console.log("Retrieving Api key");
-    console.log(req.body.wname);
-    twofactor.getApiKey(req.body.wname, function (response) {
-        res.json(response);
-    });
-});
 app.post("/check/", function (req, res) {
     res.json("Welcome");
     console.log("Welcome,", req.body.name);
@@ -69,23 +55,57 @@ app.post("/checkCode/", function (req, res) {
         res.json({ resp: response });
     });
 });
-app.get("/getAll", function (req, res) {
-    twofactor.getAll(function (response) {
+app.get("/getUsers", function (req, res) {
+    twofactor.getUsers(function (response) {
         res.json({ resp: response });
     });
 });
-app.post("/getAll", function (req, res) {
+app.get("/createUser/:name:/:fname/:lname/:dob/:email/:password", function (req, res) {
+});
+app.post("/registerUser", function (req, res) {
     console.log(req.body.username);
-    var obj = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
+    var obj = new User.User(req.body.username, req.body.fname, req.body.lname, req.body.dob, req.body.email, req.body.password);
     console.log(obj);
-    twofactor.createUserPostGres(obj, function (response) {
+    twofactor.registerUser(obj, function (response) {
         res.json({ resp: response });
     });
 });
-app.post("/getSpec", function (req, res) {
-    var obj = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
-    twofactor.verifyPassword(obj, function (response) {
+app.get("/getAllWS", function (req, res) {
+    twofactor.getAllWS(function (response) {
         res.json({ resp: response });
+    });
+});
+app.get("/test", function (req, res) {
+    res.json({ resp: "ASDASDSd" });
+});
+app.post("/registerWebService", function (req, res) {
+    var obj = new WS.WebService(req.body.username, null, req.body.password, req.body.email, null, null, null);
+    console.log(obj);
+    twofactor.registerWS(obj, function (response) {
+        res.json({ resp: response });
+    });
+});
+app.post("/verifyPassword", function (req, res) {
+    var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
+    var user = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
+    twofactor.verifyAPIkey(ws, function (response) {
+        console.log(response);
+        console.log("VALID RESPONSE????", response.content.valid);
+        if (response.content.valid == true) {
+            twofactor.verifyPassword(user, function (response) {
+                if (response.equal = true) {
+                    console.log("CORRECT");
+                    res.json({ resp: response });
+                }
+                else {
+                    res.json({ resp: response });
+                }
+            });
+        }
+        else {
+            /*res.json({res:response,message:"Invalid API Key"})*/
+            res.json({ res: "Invalid API Key" });
+        }
     });
 });
 app.post("/verifyCode", function (req, res) {
@@ -95,9 +115,17 @@ app.post("/verifyCode", function (req, res) {
 });
 app.post("/generate", function (req, res) {
 });
-app.post("/testPost", function (req, res) {
+app.post("/verifyAPIKey", function (req, res) {
+    /*console.log(req.body.apikey);*/
     console.log(req.body);
-    res.sendFile(__dirname + "/views/index.html");
+    console.log(req.body.apikey);
+    var apikey = req.body.apikey;
+    console.log("APIKEY :   ", apikey);
+    var obj = new WS.WebService(null, null, null, null, null, apikey, null);
+    console.log(obj);
+    twofactor.verifyAPIkey(obj, function (response) {
+        res.json({ resp: response });
+    });
 });
 app.get("*", function (req, res) {
     res.send('404');

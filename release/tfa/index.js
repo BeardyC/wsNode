@@ -45,7 +45,7 @@ var TFA = (function () {
     TFA.prototype.generateTimestamp = function () {
         return Math.floor(new Date().getTime() / 1000);
     };
-    TFA.prototype.getAll = function (callback) {
+    TFA.prototype.getUsers = function (callback) {
         var _this = this;
         db.any('select * from user_table')
             .then(function (data) {
@@ -55,6 +55,16 @@ var TFA = (function () {
             .then(function (data) {
             var x = _this.hashpassword("password", "user.salt", 1000);
             callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.getAllWS = function (callback) {
+        db.any('SELECT * FROM ws_table')
+            .then(function (data) {
+            console.log(data);
+            callback(new Response(ResponseStatus.SUCCESS, { data: data }));
         })
             .catch(function (err) {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
@@ -78,10 +88,43 @@ var TFA = (function () {
             }
         })
             .catch(function (err) {
-            callback(new Response(ResponseStatus.ERROR, { err: err }));
+            callback(new Response(ResponseStatus.ERROR, { err: err, equal: false }));
         });
     };
-    TFA.prototype.createUserPostGres = function (user, callback) {
+    TFA.prototype.verifyAPIkey = function (ws, callback) {
+        db.one("SELECT * FROM ws_table WHERE ws_apikey = ${apikey}", ws)
+            .then(function (data) {
+            var wsname = data.ws_name;
+            var today = new Date();
+            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            var dateTime = date + ' ' + time;
+            var message = "API request made by " + wsname + " at " + dateTime;
+            callback(new Response(ResponseStatus.SUCCESS, { data: data, message: message, valid: true }));
+        }).catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { err: err, valid: false }));
+        });
+    };
+    TFA.prototype.registerWS = function (ws, callback) {
+        ws.timestamp = this.generateTimestamp().toString();
+        ws.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
+        ws.password = this.hashpassword(ws.password, ws.salt, 1000);
+        ws.apikey = uuid.v4();
+        console.log(ws);
+        db.none("SELECT ws_name FROM ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+            db.none("INSERT INTO ws_table(ws_name, ws_salt, ws_hash, ws_email, ws_timestamp, ws_apikey, ws_apiValidity)" +
+                "VALUES(${name}, ${salt}, ${password}, ${email}, ${timestamp}, ${apikey}, ${apivalidity})", ws)
+                .then(function () {
+                console.log("INSERTED   :   ", ws);
+                callback(new Response(ResponseStatus.SUCCESS, { data: 'Successfully registered webservice' }));
+            });
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.registerUser = function (user, callback) {
         user.tstamp = this.generateTimestamp().toString();
         console.log(user.tstamp);
         user.salt = crypto.createHash("sha256").update(crypto.randomBytes(128)).digest("hex");
@@ -127,42 +170,11 @@ var TFA = (function () {
     TFA.prototype.generateOtp = function (username) {
         return "A";
     };
-    TFA.prototype.createWebservice = function (servicename, password, callback) {
-        var _this = this;
-        this.db.get(servicename, function (err, reply) {
-            console.log(err, reply);
-            var apikey = uuid.v4();
-            console.log(apikey);
-            //let hash = crypto.createHash("sha256");
-            _this.db.set(servicename, servicename);
-            _this.db.set(servicename + "_apiKey", apikey);
-            callback(new Response(ResponseStatus.SUCCESS, "Webservice created successfuly"));
-        });
-    };
     TFA.prototype.hashpassword = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
     };
     TFA.prototype.calculateOTP = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
-    };
-    TFA.prototype.getApiKey = function (servicename, callback) {
-        var _this = this;
-        this.db.get(servicename, function (err, reply) {
-            if (reply === null) {
-                callback(new Response(ResponseStatus.ERROR, "Webservice not registered"));
-            }
-            else {
-                _this.db.get(servicename + "_apiKey", function (err, reply) {
-                    if (reply === null) {
-                        callback(new Response(ResponseStatus.ERROR, "Key Does not exist"));
-                    }
-                    else {
-                        var apikey = reply;
-                        callback(new Response(ResponseStatus.SUCCESS, { servicename: servicename, apiKey: apikey }));
-                    }
-                });
-            }
-        });
     };
     TFA.prototype.generate = function (username, callback) {
         var _this = this;
