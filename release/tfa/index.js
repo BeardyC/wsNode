@@ -4,6 +4,7 @@ var redis = require("redis");
 var crypto = require("crypto");
 var uuid = require("uuid");
 var promise = require("bluebird");
+var User = require("../models/users");
 var options = {
     promiseLib: promise
 };
@@ -156,9 +157,13 @@ var TFA = (function () {
             console.log("QUERY EXECUTEd");
             console.log(_this.generateTimestamp());
             console.log(data.u_timestamp);
-            console.log("GENERATING ... :   ", _this.generateOtp(data.username));
-            var it = Number(data.u_timestamp) - _this.generateTimestamp();
-            console.log(it);
+            console.log("GENERATING ... :   ", _this.generateOtp(data.username, function (data) {
+                console.log(data);
+            }));
+            console.log("CURRENT TIME:", _this.generateTimestamp());
+            console.log("TIMESTAMP:", data.u_timestamp);
+            var it = _this.generateTimestamp() - Number(data.u_timestamp);
+            console.log("ITERATIONS :   ", it);
             //_this.calculateOTP(data.u_secret,u_salt,)
             callback(new Response(ResponseStatus.SUCCESS, { data: data }));
         })
@@ -167,8 +172,24 @@ var TFA = (function () {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
         });
     };
-    TFA.prototype.generateOtp = function (username) {
-        return "A";
+    TFA.prototype.generateOtp = function (username, callback) {
+        console.log(username);
+        var _this = this;
+        var user = new User.User(username, null, null, null, null, null, null, null, null);
+        console.log(user);
+        db.one("SELECT u_timestamp,u_salt, u_secret FROM user_table WHERE u_name = ${name}", { name: username })
+            .then(function (data) {
+            console.log(data);
+            var it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
+            console.log("ITERATIONS:    ", it);
+            console.log("DATA   :   ", data);
+            var x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
+            callback(new Response(ResponseStatus.SUCCESS, { data: x }));
+        })
+            .catch(function (err) {
+            console.log("ERROPR");
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
     };
     TFA.prototype.hashpassword = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');

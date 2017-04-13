@@ -183,9 +183,14 @@ export default class TFA {
                 console.log("QUERY EXECUTEd");
                 console.log(_this.generateTimestamp());
                 console.log(data.u_timestamp);
-                console.log("GENERATING ... :   ", _this.generateOtp(data.username))
-                let it = Number(data.u_timestamp) - _this.generateTimestamp();
-                console.log(it);
+                console.log("GENERATING ... :   ", _this.generateOtp(data.username,function(data){
+                    console.log(data);
+                }));
+                console.log("CURRENT TIME:",_this.generateTimestamp());
+                console.log("TIMESTAMP:",data.u_timestamp);
+                
+                let it =  _this.generateTimestamp()- Number(data.u_timestamp);
+                console.log("ITERATIONS :   ",it);
                 //_this.calculateOTP(data.u_secret,u_salt,)
                 callback(new Response(ResponseStatus.SUCCESS, { data: data }));
             })
@@ -194,9 +199,29 @@ export default class TFA {
                 callback(new Response(ResponseStatus.ERROR, { data: err }))
             })
     }
-    public generateOtp(username: string): string {
+    public generateOtp(username: string, callback:(Response)=>void) {
+        console.log(username);
+        let _this = this;
+        let user = new User.User(username,null,null,null,null,null,null,null,null);
+        console.log(user);
+        db.one("SELECT u_timestamp,u_salt, u_secret FROM user_table WHERE u_name = ${name}", {name:username})
+            .then(function(data){
+                console.log(data);
 
-        return "A";
+                
+                
+                let it = ( _this.generateTimestamp()-Number(data.u_timestamp)) /_this.hashValidity;
+                console.log("ITERATIONS:    ",it);
+                console.log("DATA   :   ",data);
+                let x = crypto.pbkdf2Sync(data.u_secret,data.u_salt,it,20,_this.hashAlgo).toString('hex').substring(0,_this.hashLength+1);
+                callback(new Response(ResponseStatus.SUCCESS,{data:x}));
+            })
+            .catch(function(err){
+                console.log("ERROPR");
+                callback(new Response(ResponseStatus.ERROR, { data: err }))
+            })
+
+        
     }
 
 

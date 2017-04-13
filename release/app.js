@@ -127,6 +127,13 @@ app.post("/verifyAPIKey", function (req, res) {
         res.json({ resp: response });
     });
 });
+app.post("/test", function (req, res) {
+    console.log(req.body.username);
+    twofactor.generateOtp(req.body.username, function (response) {
+        console.log(response);
+        res.json({ resp: response });
+    });
+});
 app.get("*", function (req, res) {
     res.send('404');
 });
