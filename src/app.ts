@@ -65,7 +65,7 @@ app.get("/getUsers", function (req, res) {
         
        // console.log(JSON.stringify(response));
         
-        res.render('index',{'title:': response});
+        res.render('index',{test: JSON.stringify(response)});
     })
 })
 

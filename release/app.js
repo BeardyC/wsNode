@@ -50,7 +50,7 @@ app.get("/getUsers", function (req, res) {
         //res.json(response)
         console.log(response);
         // console.log(JSON.stringify(response));
-        res.render('index', { 'title:': response });
+        res.render('index', { test: JSON.stringify(response) });
     });
 });
 app.post("/registerUser", function (req, res) {
