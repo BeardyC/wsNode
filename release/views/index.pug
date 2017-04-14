@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+    title  2FA 
+    meta(charset='UTF-8')
+    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css')
+    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css', href='/css/styles.css')
+  body
+    #menuContainer
+      img#image(src='/img/cover.jpg')
+      nav#navigation
+        ul#left-menu
+          li
+            a(href='#1')  Product 
+          li
+            a(href='#1')  Dev 
+          li
+            a(href='#1')  User 
+          li
+            a(href='#1')  About 
+        ul#right-menu
+          li
+            a(href='#1')  Login 
+          li
+            a(href='#1')  Register 
+    #mainContainer.container
+      form(action='/testPost', method='post')
+        h2
+          | Create 2FA to get 
+          span  Started!
+        hr
+        .row
+          .form-group.col-xs-6
+            input.form-control(name='name', placeholder='First name')
+          .form-group.col-xs-6
+            input.form-control(name='name', placeholder='Last name')
+        .row
+          .form-group.col-xs-12
+            input.form-control(type='name', name='companyname', placeholder='Company name (Optional)')
+        .row
+          .form-group.col-xs-12
+            input.form-control(type='name', name='email', placeholder='Email ')
+        .row
+          .form-group.col-xs-6
+            input.form-control(name='password', placeholder='Choose a password')
+          .form-group.col-xs-6
+            input.form-control(name='password', placeholder='Repeat password')
+        #wrapSubmitButton
+          button#submitButton.btn.btn-primary(type='submit') Submit
+    hr
+    footer.footer
+      p © 2017 2FA, Inc.
+    script(src='https://code.jquery.com/jquery-latest.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')

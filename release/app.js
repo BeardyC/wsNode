@@ -6,7 +6,6 @@ var fs = require("fs");
 var tfa_1 = require("./tfa");
 var https = require("https");
 var body = require("body-parser");
-var crypto = require("crypto");
 var User = require("./models/users");
 var WS = require("./models/webService");
 var obj;
@@ -21,41 +20,38 @@ var credentials = {
     key: privateKey,
     cert: cert
 };
+app.set('view engine', 'pug');
 app.use(express.static(__dirname + "/views"));
 //app.user(express.static(path.join(__dirname, '/')));
-/*app.get("/", function (req, res) {
-    res.status(200).sendFile(__dirname + "/views/index.html");
-});*/
-app.post("/encrypt", function (req, res) {
+app.get("/", function (req, res) {
+    res.render('index', res);
+});
+/*app.post("/encrypt", function (req, res) {
     console.log(req.body.name);
     //res.send(req.body.name);
-    var toBeEncryped = req.body.name;
+    let toBeEncryped: string = req.body.name;
     console.log("Message to Encrypt : ", toBeEncryped);
-    var buffer = new Buffer(toBeEncryped);
-    var encryped = crypto.publicEncrypt(privateKey, buffer);
-    console.log("encryped  :   ", encryped);
-    var string1 = encryped.toString("base64");
-    console.log("Stringified   :   ", string1);
-    var buffer2 = new Buffer(string1, "base64");
-    var decryped = crypto.privateDecrypt(privateKey, buffer2);
+    let buffer = new Buffer(toBeEncryped);
+    let encryped = crypto.publicEncrypt(privateKey, buffer);
+    console.log("encryped  :   ", encryped)
+
+
+    let string1 = encryped.toString("base64");
+    console.log("Stringified   :   ", string1)
+
+    let buffer2 = new Buffer(string1, "base64");
+
+    let decryped = crypto.privateDecrypt(privateKey, buffer2);
     console.log("decryped  :   ", decryped.toString("utf8"));
     res.send(encryped);
-});
-app.post("/check/", function (req, res) {
-    res.json("Welcome");
-    console.log("Welcome,", req.body.name);
-});
-app.post("/checkCode/", function (req, res) {
-    twofactor.checkCode(req.body.username, req.body.code, function (response) {
-        res.json({ resp: response });
-    });
-});
+});*/
 app.get("/getUsers", function (req, res) {
     twofactor.getUsers(function (response) {
-        res.json({ resp: response });
+        //res.json(response)
+        console.log(response);
+        // console.log(JSON.stringify(response));
+        // res.render('index',JSON.stringify(response));
     });
-});
-app.get("/createUser/:name:/:fname/:lname/:dob/:email/:password", function (req, res) {
 });
 app.post("/registerUser", function (req, res) {
     console.log(req.body.username);
@@ -65,13 +61,10 @@ app.post("/registerUser", function (req, res) {
         res.json({ resp: response });
     });
 });
-app.get("/getAllWS", function (req, res) {
+app.get("/getWS", function (req, res) {
     twofactor.getAllWS(function (response) {
         res.json({ resp: response });
     });
-});
-app.get("/test", function (req, res) {
-    res.json({ resp: "ASDASDSd" });
 });
 app.post("/registerWebService", function (req, res) {
     var obj = new WS.WebService(req.body.username, null, req.body.password, req.body.email, null, null, null);

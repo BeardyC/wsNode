@@ -51,14 +51,12 @@ export default class TFA {
     public getUsers(callback: (Response) => void) {
         db.any('select * from user_table')
             .then(function (data) {
-                console.log(data);
+                //console.log(data);
                 return data;
 
             })
             .then(data => {
-                let x = this.hashpassword("password", "user.salt", 1000);
-
-                callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
+                callback(new Response(ResponseStatus.SUCCESS, { output: data }));
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }));
@@ -195,10 +193,10 @@ export default class TFA {
             .then(function (data) {
                 let it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
                 let x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
-                callback(new Response(ResponseStatus.SUCCESS, { data: x }));
+                callback(new Response(ResponseStatus.SUCCESS, { data: x, valid: true }));
             })
             .catch(function (err) {
-                callback(new Response(ResponseStatus.ERROR, { data: err }))
+                callback(new Response(ResponseStatus.ERROR, { data: "Unrecognised user", valid: false }))
             })
     }
 
@@ -210,30 +208,6 @@ export default class TFA {
 
     public calculateOTP(password: string, salt: string, it: number): string {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex')
-    }
-
-
-
-    public generate(username: string, callback: (Response) => void) {
-        this.db.get(username, (err, reply) => {
-            if (reply === null) {
-                callback(new Response(ResponseStatus.SUCCESS, "Username doesn't exist"));
-            } else {
-                let epoch = parseInt(reply);
-                this.db.get(username + "_salt", (err, reply) => {
-                    if (reply === null) {
-                        callback(new Response(ResponseStatus.SUCCESS, "Fatal error"));
-                    } else {
-                        let hash = crypto.createHash(this.hashAlgo);
-                        let salt = reply;
-                        let iteration = Math.floor((this.generateTimestamp() - epoch) / this.hashValidity);
-                        hash.update(salt + iteration);
-                        let authCode = hash.digest("hex").substr(0, this.hashLength);
-                        callback(new Response(ResponseStatus.SUCCESS, { code: authCode, it: iteration }));
-                    }
-                });
-            }
-        });
     }
 
 

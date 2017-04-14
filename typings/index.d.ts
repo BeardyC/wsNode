@@ -4,6 +4,7 @@
 /// <reference path="modules/body-parser/index.d.ts" />
 /// <reference path="modules/express-serve-static-core/index.d.ts" />
 /// <reference path="modules/helmet/index.d.ts" />
+/// <reference path="modules/pug/index.d.ts" />
 /// <reference path="modules/redis/index.d.ts" />
 /// <reference path="modules/serve-static/index.d.ts" />
 /// <reference path="modules/uuid/index.d.ts" />

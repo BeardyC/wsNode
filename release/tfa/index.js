@@ -47,15 +47,13 @@ var TFA = (function () {
         return Math.floor(new Date().getTime() / 1000);
     };
     TFA.prototype.getUsers = function (callback) {
-        var _this = this;
         db.any('select * from user_table')
             .then(function (data) {
-            console.log(data);
+            //console.log(data);
             return data;
         })
             .then(function (data) {
-            var x = _this.hashpassword("password", "user.salt", 1000);
-            callback(new Response(ResponseStatus.SUCCESS, { output: data, key: x }));
+            callback(new Response(ResponseStatus.SUCCESS, { output: data }));
         })
             .catch(function (err) {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
@@ -170,10 +168,10 @@ var TFA = (function () {
             .then(function (data) {
             var it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
             var x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
-            callback(new Response(ResponseStatus.SUCCESS, { data: x }));
+            callback(new Response(ResponseStatus.SUCCESS, { data: x, valid: true }));
         })
             .catch(function (err) {
-            callback(new Response(ResponseStatus.ERROR, { data: err }));
+            callback(new Response(ResponseStatus.ERROR, { data: "Unrecognised user", valid: false }));
         });
     };
     TFA.prototype.hashpassword = function (password, salt, it) {
@@ -181,30 +179,6 @@ var TFA = (function () {
     };
     TFA.prototype.calculateOTP = function (password, salt, it) {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex');
-    };
-    TFA.prototype.generate = function (username, callback) {
-        var _this = this;
-        this.db.get(username, function (err, reply) {
-            if (reply === null) {
-                callback(new Response(ResponseStatus.SUCCESS, "Username doesn't exist"));
-            }
-            else {
-                var epoch_1 = parseInt(reply);
-                _this.db.get(username + "_salt", function (err, reply) {
-                    if (reply === null) {
-                        callback(new Response(ResponseStatus.SUCCESS, "Fatal error"));
-                    }
-                    else {
-                        var hash = crypto.createHash(_this.hashAlgo);
-                        var salt = reply;
-                        var iteration = Math.floor((_this.generateTimestamp() - epoch_1) / _this.hashValidity);
-                        hash.update(salt + iteration);
-                        var authCode = hash.digest("hex").substr(0, _this.hashLength);
-                        callback(new Response(ResponseStatus.SUCCESS, { code: authCode, it: iteration }));
-                    }
-                });
-            }
-        });
     };
     return TFA;
 }());

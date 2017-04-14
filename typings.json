@@ -3,7 +3,7 @@
     "body-parser": "registry:npm/body-parser#1.15.2+20161116154925",
     "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20170324160323",
     "helmet": "registry:dt/helmet#0.0.0+20170310054102",
-    
+    "pug": "registry:npm/pug#2.0.0+20160913022035",
     "redis": "registry:dt/redis#0.12.2+20170209165924",
     "serve-static": "registry:dt/serve-static#1.7.1+20161128184045"
   },
