@@ -51,7 +51,7 @@ export default class TFA {
     public getUsers(callback: (Response) => void) {
         db.any('select * from user_table')
             .then(function (data) {
-                //console.log(data);
+                console.log(data);
                 return data;
 
             })

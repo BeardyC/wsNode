@@ -49,7 +49,7 @@ var TFA = (function () {
     TFA.prototype.getUsers = function (callback) {
         db.any('select * from user_table')
             .then(function (data) {
-            //console.log(data);
+            console.log(data);
             return data;
         })
             .then(function (data) {
