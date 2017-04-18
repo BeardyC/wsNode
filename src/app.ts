@@ -10,6 +10,7 @@ import * as path from "path";
 import * as User from "./models/users";
 import * as WS from "./models/webService";
 import * as pug from "pug";
+import * as cors from "cors";
 
 let obj: User.User;
 
@@ -31,6 +32,11 @@ let credentials = {
     cert: cert
 };
 app.set('view engine', 'pug')
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 app.use(express.static(__dirname + "/views"));
 //app.user(express.static(path.join(__dirname, '/')));
 app.get("/", function (req, res) {
