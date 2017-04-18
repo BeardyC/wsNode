@@ -52,10 +52,10 @@ app.get("/", function (req, res) {
 });*/
 app.get("/getUsers", function (req, res) {
     twofactor.getUsers(function (response) {
-        //res.json(response)
-        console.log(response);
-        // console.log(JSON.stringify(response));
-        res.render('index', { test: JSON.stringify(response) });
+        res.json(response);
+        //console.log(response);
+        //console.log(JSON.stringify(response));
+        //res.render('index', { test: JSON.stringify(response) });
     });
 });
 app.post("/registerUser", function (req, res) {
@@ -64,6 +64,63 @@ app.post("/registerUser", function (req, res) {
     console.log(obj);
     twofactor.registerUser(obj, function (response) {
         res.json({ resp: response });
+    });
+});
+app.post("/editUser", function (req, res) {
+    var user = new User.User(req.body.username, req.body.fname, req.body.lname, req.body.dob, req.body.email, req.body.password);
+    console.log(user);
+    twofactor.edituser(user, function (response) {
+        res.json({ resp: response });
+    });
+});
+app.post("/editWS", function (req, res) {
+    var ws = new WS.WebService(req.body.username, null, null, req.body.email, null, null, null);
+    twofactor.editWS(ws, function (response) {
+        console.log(response);
+        res.json(response);
+    });
+});
+app.post("/userLogin", function (req, res) {
+    var user = new User.User(req.body.username, null, null, null, null, req.body.password, null, null);
+    twofactor.loginUser(user, function (response) {
+        console.log(response);
+        res.json(response);
+    });
+});
+app.post("/wsLogin", function (req, res) {
+    var ws = new WS.WebService(req.body.username, null, req.body.password);
+    twofactor.loginWS(ws, function (response) {
+        console.log(response);
+        res.json(response);
+    });
+});
+app.post("/mobileLogin", function (req, res) {
+    var user = new User.User(req.body.username, null, null, null, null, req.body.password, null, null);
+    twofactor.loginFromMobile(user, function (response) {
+        console.log(response);
+        res.json(response);
+    });
+});
+app.post("/deleteUser", function (req, res) {
+    var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
+    var user = new User.User(req.body.username);
+    twofactor.verifyAPIkey(ws, function (response) {
+        if (response.content.valid == true) {
+            twofactor.deleteUser(user, function (response) {
+                console.log(response);
+                if (response.status = true) {
+                    res.json({ resp: "Successfully deleted user" });
+                    console.log();
+                }
+                else {
+                    res.json({ resp: response });
+                }
+            });
+        }
+        else {
+            /*res.json({res:response,message:"Invalid API Key"})*/
+            res.json({ res: "Invalid API Key" });
+        }
     });
 });
 app.get("/getWS", function (req, res) {
@@ -77,12 +134,43 @@ app.post("/registerWebService", function (req, res) {
         res.json({ resp: response });
     });
 });
-app.post("/verifyPassword", function (req, res) {
-    var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
-    var user = new User.User(req.body.username, "a", "b", "c", "email", req.body.password, "e", "0");
+app.post("/deleteWebService", function (req, res) {
+    var ws = new WS.WebService(req.body.username);
+    twofactor.deleteWS(ws, function (response) {
+        res.json(response);
+    });
+});
+/*app.post("/verifyPassword", function (req, res) {
+    let ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
+    let user = new User.User(req.body.username,
+        "a",
+        "b",
+        "c",
+        "email",
+        "password",
+        "e",
+        "0");
     twofactor.verifyAPIkey(ws, function (response) {
         if (response.content.valid == true) {
             twofactor.verifyPassword(user, function (response) {
+                if (response.equal = true) {
+                    res.json({ resp: response });
+                } else {
+                    res.json({ resp: response });
+                }
+            })
+        } else {
+            
+            res.json({ res: "Invalid API Key" })
+        }
+    })
+
+})*/
+app.post("/getCode", function (req, res) {
+    var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
+    twofactor.verifyAPIkey(ws, function (response) {
+        if (response.content.valid == true) {
+            twofactor.generateOtp(req.body.username, function (response) {
                 if (response.equal = true) {
                     res.json({ resp: response });
                 }
@@ -97,17 +185,24 @@ app.post("/verifyPassword", function (req, res) {
         }
     });
 });
-app.post("/getCode", function (req, res) {
-    twofactor.generateOtp(req.body.username, function (response) {
-        res.json({ resp: response });
-    });
-});
 app.post("/verifyCode", function (req, res) {
-    twofactor.checkCode(req.body.username, req.body.code, function (response) {
-        res.json({ resp: response });
+    var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
+    twofactor.verifyAPIkey(ws, function (response) {
+        if (response.content.valid == true) {
+            twofactor.checkCode(req.body.username, req.body.code, function (response) {
+                console.log(response);
+                if (response.equal = true) {
+                    res.json({ resp: response });
+                }
+                else {
+                    res.json({ resp: response });
+                }
+            });
+        }
+        else {
+            res.json({ res: "Invalid API Key" });
+        }
     });
-});
-app.post("/generate", function (req, res) {
 });
 app.post("/verifyAPIKey", function (req, res) {
     var apikey = req.body.apikey;

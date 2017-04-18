@@ -1,4 +1,3 @@
-import * as redis from 'redis';
 import * as crypto from 'crypto';
 import * as uuid from 'uuid';
 import * as promise from 'bluebird';
@@ -23,8 +22,6 @@ export enum ResponseStatus { SUCCESS, ERROR };
 export class Response { public constructor(public status: ResponseStatus, public content: any) { } };
 
 export default class TFA {
-
-    private db: redis.RedisClient;
     private hashValidity: number;
     private hashAlgo: string;
     private hashLength: number;
@@ -32,11 +29,6 @@ export default class TFA {
 
 
     public constructor(hashValidity: number, hashAlgo: string, hashLength: number) {
-        this.db = redis.createClient();
-
-        this.db.on("error", function (err) {
-            console.log("REDIS ERROR:", err);
-        });
 
         this.hashValidity = hashValidity;
         this.hashAlgo = hashAlgo;
@@ -63,6 +55,78 @@ export default class TFA {
             });
     }
 
+    public edituser(user: User.User, callback: (Response) => void) {
+        console.log(user);
+
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function () {
+                db.none("UPDATE user_table SET u_fname = ${fname}, u_lname = ${lname}, u_dob = ${dob}, u_email = ${email} WHERE u_name = ${name}", user)
+                    .then(function () {
+                        callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+                    })
+                    .catch(function (err) {
+                        callback(new Response(ResponseStatus.ERROR, { data: err }));
+                    })
+
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            })
+    }
+
+    public editWS(ws: WS.WebService, callback: (Response) => void) {
+        console.log(ws);
+
+
+        db.one("SELECT * from ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+                db.none("UPDATE ws_table SET  ws_email = ${email} WHERE ws_name = ${name}", ws)
+                    .then(function () {
+                        callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+                    })
+                    .catch(function (err) {
+                        callback(new Response(ResponseStatus.ERROR, { data: err }));
+                    })
+
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            })
+
+    }
+
+
+
+    public deleteUser(user: User.User, callback: (Response) => void) {
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function () {
+                db.none("DELETE from user_table WHERE u_name = ${name}", user)
+                    .then(function (data) {
+                        callback(new Response(ResponseStatus.SUCCESS, { data: "DELETED USER" }));
+                    })
+                    .catch(function (err) {
+                        console.log(err)
+                        callback(new Response(ResponseStatus.ERROR, { data: "ERROR DELETING" }));
+                    })
+
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            })
+    }
+
+    public deleteWS(ws: WS.WebService, callback: (Response) => void) {
+        db.none("DELETE from ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+                callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+            })
+            .catch(function () {
+                callback(new Response(ResponseStatus.ERROR, { data: null }));
+            })
+    }
+
+
+
     public getAllWS(callback: (Response) => void) {
         db.any('SELECT * FROM ws_table')
             .then(function (data) {
@@ -71,6 +135,63 @@ export default class TFA {
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }));
+            })
+    }
+
+    public loginUser(user, callback: (Response) => void) {
+        console.log(user);
+        let _this = this;
+        db.one("SELECT u_name, u_ FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
+                let serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
+                console.log(serverhash);
+                if (serverhash == data.p_hash) {
+                    callback(new Response(ResponseStatus.SUCCESS, { equal: true }));
+                } else {
+                    callback(new Response(ResponseStatus.ERROR, { equal: false }));
+                }
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
+            })
+    }
+
+    public loginFromMobile(user, callback: (Response) => void) {
+        console.log(user);
+        let _this = this;
+        db.one("SELECT u_name,u_salt,u_secret,u_timestamp,p_hash FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
+                let serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
+                
+                console.log(serverhash);
+                console.log(data.p_hash);
+                let x = {u_name : data.u_name, u_salt: data.u_salt, u_secret: data.u_secret, u_timestamp : data.u_timestamp}
+                if (serverhash == data.p_hash) {
+                    callback(new Response(ResponseStatus.SUCCESS, { data: x, equal: true }));
+                } else {
+                    callback(new Response(ResponseStatus.ERROR, { equal: false }));
+                }
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
+            })
+    }
+
+    public loginWS(ws, callback: (Response) => void) {
+        console.log(ws);
+        let _this = this;
+        db.one("SELECT * FROM ws_table WHERE ws_name = ${name}", ws)
+            .then(function (data) {
+                let serverhash = _this.hashpassword(ws.password, data.ws_salt, 1000);
+                console.log(serverhash);
+                if (serverhash == data.ws_hash) {
+                    callback(new Response(ResponseStatus.SUCCESS, { equal: true }));
+                } else {
+                    callback(new Response(ResponseStatus.ERROR, { equal: false }));
+                }
+            })
+            .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
             })
     }
 
@@ -91,7 +212,7 @@ export default class TFA {
                 if (serverHash == data.p_hash) {
                     callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: true }));
                 } else {
-                    callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: false }));
+                    callback(new Response(ResponseStatus.ERROR, { data: data, equal: false }));
                 }
             })
             .catch(function (err) {
@@ -105,7 +226,6 @@ export default class TFA {
             .then(function (data) {
                 let wsname = data.ws_name;
                 let today = new Date();
-
                 let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
                 let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
                 let dateTime = date + ' ' + time;
@@ -114,8 +234,6 @@ export default class TFA {
             }).catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { err: err, valid: false }));
             })
-
-
     }
 
     public registerWS(ws: WS.WebService, callback: (Response) => void) {
@@ -175,10 +293,18 @@ export default class TFA {
 
     public checkCode(username: string, code: string, callback: (Response) => void) {
         let _this = this;
-        db.one("SELECT u_salt,u_timestamp FROM user_table WHERE u_name = ${name}", { name: username })
+        db.one("SELECT u_salt,u_timestamp,u_secret FROM user_table WHERE u_name = ${name}", { name: username })
             .then(function (data) {
-                let it = _this.generateTimestamp() - Number(data.u_timestamp);
-                callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+                console.log(data);
+                let it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
+                let x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
+                if (x == code) {
+                    callback(new Response(ResponseStatus.SUCCESS, { valid: true }));
+
+                } else {
+                    callback(new Response(ResponseStatus.SUCCESS, { valid: false }));
+                }
+
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: err }))
@@ -191,6 +317,7 @@ export default class TFA {
         console.log(user);
         db.one("SELECT u_timestamp,u_salt, u_secret FROM user_table WHERE u_name = ${name}", { name: username })
             .then(function (data) {
+
                 let it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
                 let x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
                 callback(new Response(ResponseStatus.SUCCESS, { data: x, valid: true }));
@@ -209,9 +336,5 @@ export default class TFA {
     public calculateOTP(password: string, salt: string, it: number): string {
         return crypto.pbkdf2Sync(password, salt, it, 20, this.hashAlgo).toString('hex')
     }
-
-
-
-
 
 }

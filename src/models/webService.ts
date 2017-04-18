@@ -8,8 +8,6 @@ export class WebService {
     public apikey       :   string  =   "apikey";
     public apivalidity  :   string  =   "apivalidity";
 
-
-
     constructor(name: string = "name", salt: string = "salt", password: string = "password", email: string = "email", timestamp: string = "timestamp", apikey: string = "apikey", apivalidity: string = "apivalidity") {
 
         this.name           =   (name             === null)   ?   'name'        :   name;
@@ -20,7 +18,5 @@ export class WebService {
         this.apikey         =   (apikey           === null)   ?   'apikey'      :   apikey;
         this.apivalidity    =   (apivalidity      === null)   ?   'true'        :   apivalidity;
     }
-
-
-
+    
 }

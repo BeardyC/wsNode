@@ -18,7 +18,7 @@ export class User {
         this.password   = (password === null)   ? 'password'    : password;
         this.salt       = (salt     === null)   ? 'salt'        : salt;
         this.tstamp     = (tstamp   === null)   ? '1492085120'  : tstamp;
-        this.secret     = (name     === null)   ? 'name'        : name;
+        this.secret     = (secret   === null)   ? 'secret'      : name;
     }
 
 }

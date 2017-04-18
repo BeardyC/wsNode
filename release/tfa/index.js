@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var redis = require("redis");
 var crypto = require("crypto");
 var uuid = require("uuid");
 var promise = require("bluebird");
@@ -35,10 +34,6 @@ exports.Response = Response;
 ;
 var TFA = (function () {
     function TFA(hashValidity, hashAlgo, hashLength) {
-        this.db = redis.createClient();
-        this.db.on("error", function (err) {
-            console.log("REDIS ERROR:", err);
-        });
         this.hashValidity = hashValidity;
         this.hashAlgo = hashAlgo;
         this.hashLength = hashLength;
@@ -59,6 +54,63 @@ var TFA = (function () {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
         });
     };
+    TFA.prototype.edituser = function (user, callback) {
+        console.log(user);
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function () {
+            db.none("UPDATE user_table SET u_fname = ${fname}, u_lname = ${lname}, u_dob = ${dob}, u_email = ${email} WHERE u_name = ${name}", user)
+                .then(function () {
+                callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+            })
+                .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            });
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.editWS = function (ws, callback) {
+        console.log(ws);
+        db.one("SELECT * from ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+            db.none("UPDATE ws_table SET  ws_email = ${email} WHERE ws_name = ${name}", ws)
+                .then(function () {
+                callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+            })
+                .catch(function (err) {
+                callback(new Response(ResponseStatus.ERROR, { data: err }));
+            });
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.deleteUser = function (user, callback) {
+        db.one("SELECT * FROM user_table WHERE u_name = ${name}", user)
+            .then(function () {
+            db.none("DELETE from user_table WHERE u_name = ${name}", user)
+                .then(function (data) {
+                callback(new Response(ResponseStatus.SUCCESS, { data: "DELETED USER" }));
+            })
+                .catch(function (err) {
+                console.log(err);
+                callback(new Response(ResponseStatus.ERROR, { data: "ERROR DELETING" }));
+            });
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.deleteWS = function (ws, callback) {
+        db.none("DELETE from ws_table WHERE ws_name = ${name}", ws)
+            .then(function () {
+            callback(new Response(ResponseStatus.SUCCESS, { data: null }));
+        })
+            .catch(function () {
+            callback(new Response(ResponseStatus.ERROR, { data: null }));
+        });
+    };
     TFA.prototype.getAllWS = function (callback) {
         db.any('SELECT * FROM ws_table')
             .then(function (data) {
@@ -67,6 +119,62 @@ var TFA = (function () {
         })
             .catch(function (err) {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
+        });
+    };
+    TFA.prototype.loginUser = function (user, callback) {
+        console.log(user);
+        var _this = this;
+        db.one("SELECT u_name, u_ FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
+            var serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
+            console.log(serverhash);
+            if (serverhash == data.p_hash) {
+                callback(new Response(ResponseStatus.SUCCESS, { equal: true }));
+            }
+            else {
+                callback(new Response(ResponseStatus.ERROR, { equal: false }));
+            }
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
+        });
+    };
+    TFA.prototype.loginFromMobile = function (user, callback) {
+        console.log(user);
+        var _this = this;
+        db.one("SELECT u_name,u_salt,u_secret,u_timestamp,p_hash FROM user_table WHERE u_name = ${name}", user)
+            .then(function (data) {
+            var serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
+            console.log(serverhash);
+            console.log(data.p_hash);
+            var x = { u_name: data.u_name, u_salt: data.u_salt, u_secret: data.u_secret, u_timestamp: data.u_timestamp };
+            if (serverhash == data.p_hash) {
+                callback(new Response(ResponseStatus.SUCCESS, { data: x, equal: true }));
+            }
+            else {
+                callback(new Response(ResponseStatus.ERROR, { equal: false }));
+            }
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
+        });
+    };
+    TFA.prototype.loginWS = function (ws, callback) {
+        console.log(ws);
+        var _this = this;
+        db.one("SELECT * FROM ws_table WHERE ws_name = ${name}", ws)
+            .then(function (data) {
+            var serverhash = _this.hashpassword(ws.password, data.ws_salt, 1000);
+            console.log(serverhash);
+            if (serverhash == data.ws_hash) {
+                callback(new Response(ResponseStatus.SUCCESS, { equal: true }));
+            }
+            else {
+                callback(new Response(ResponseStatus.ERROR, { equal: false }));
+            }
+        })
+            .catch(function (err) {
+            callback(new Response(ResponseStatus.ERROR, { err: err, msg: "Invalid User" }));
         });
     };
     TFA.prototype.verifyPassword = function (user, callback) {
@@ -83,7 +191,7 @@ var TFA = (function () {
                 callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: true }));
             }
             else {
-                callback(new Response(ResponseStatus.SUCCESS, { data: data, equal: false }));
+                callback(new Response(ResponseStatus.ERROR, { data: data, equal: false }));
             }
         })
             .catch(function (err) {
@@ -150,10 +258,17 @@ var TFA = (function () {
     };
     TFA.prototype.checkCode = function (username, code, callback) {
         var _this = this;
-        db.one("SELECT u_salt,u_timestamp FROM user_table WHERE u_name = ${name}", { name: username })
+        db.one("SELECT u_salt,u_timestamp,u_secret FROM user_table WHERE u_name = ${name}", { name: username })
             .then(function (data) {
-            var it = _this.generateTimestamp() - Number(data.u_timestamp);
-            callback(new Response(ResponseStatus.SUCCESS, { data: data }));
+            console.log(data);
+            var it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
+            var x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
+            if (x == code) {
+                callback(new Response(ResponseStatus.SUCCESS, { valid: true }));
+            }
+            else {
+                callback(new Response(ResponseStatus.SUCCESS, { valid: false }));
+            }
         })
             .catch(function (err) {
             callback(new Response(ResponseStatus.ERROR, { data: err }));
