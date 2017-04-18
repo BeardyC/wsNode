@@ -6,10 +6,10 @@ var fs = require("fs");
 var tfa_1 = require("./tfa");
 var https = require("https");
 var body = require("body-parser");
+var crypto = require("crypto");
 var User = require("./models/users");
 var WS = require("./models/webService");
-var obj;
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "1";
 var app = express();
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
@@ -31,25 +31,19 @@ app.use(express.static(__dirname + "/views"));
 app.get("/", function (req, res) {
     res.render('index', res);
 });
-/*app.post("/encrypt", function (req, res) {
-    console.log(req.body.name);
-    //res.send(req.body.name);
-    let toBeEncryped: string = req.body.name;
+app.post("/encrypt", function (req, res) {
+    var toBeEncryped = req.body.username;
     console.log("Message to Encrypt : ", toBeEncryped);
-    let buffer = new Buffer(toBeEncryped);
-    let encryped = crypto.publicEncrypt(privateKey, buffer);
-    console.log("encryped  :   ", encryped)
-
-
-    let string1 = encryped.toString("base64");
-    console.log("Stringified   :   ", string1)
-
-    let buffer2 = new Buffer(string1, "base64");
-
-    let decryped = crypto.privateDecrypt(privateKey, buffer2);
-    console.log("decryped  :   ", decryped.toString("utf8"));
+    var buffer = new Buffer(toBeEncryped);
+    var encryped = crypto.publicEncrypt(privateKey, buffer);
+    console.log("Encryped message  :   ", encryped);
+    var string1 = encryped.toString("base64");
+    console.log("Stringified   :   ", string1);
+    var buffer2 = new Buffer(string1, "base64");
+    var decryped = crypto.privateDecrypt(privateKey, buffer2);
+    console.log("Decryped  m    :   ", decryped.toString("utf8"));
     res.send(encryped);
-});*/
+});
 app.get("/getUsers", function (req, res) {
     twofactor.getUsers(function (response) {
         res.json(response);

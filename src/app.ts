@@ -12,13 +12,6 @@ import * as WS from "./models/webService";
 import * as pug from "pug";
 import * as cors from "cors";
 
-let obj: User.User;
-
-
-
-
-
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 let app = express();
 app.use(body.urlencoded({ extended: false }));
@@ -42,14 +35,13 @@ app.use(express.static(__dirname + "/views"));
 app.get("/", function (req, res) {
     res.render('index', res);
 });
-/*app.post("/encrypt", function (req, res) {
-    console.log(req.body.name);
-    //res.send(req.body.name);
-    let toBeEncryped: string = req.body.name;
+app.post("/encrypt", function (req, res) {
+
+    let toBeEncryped: string = req.body.username;
     console.log("Message to Encrypt : ", toBeEncryped);
     let buffer = new Buffer(toBeEncryped);
     let encryped = crypto.publicEncrypt(privateKey, buffer);
-    console.log("encryped  :   ", encryped)
+    console.log("Encryped message  :   ", encryped)
 
 
     let string1 = encryped.toString("base64");
@@ -58,9 +50,9 @@ app.get("/", function (req, res) {
     let buffer2 = new Buffer(string1, "base64");
 
     let decryped = crypto.privateDecrypt(privateKey, buffer2);
-    console.log("decryped  :   ", decryped.toString("utf8"));
+    console.log("Decryped  m    :   ", decryped.toString("utf8"));
     res.send(encryped);
-});*/
+});
 
 
 app.get("/getUsers", function (req, res) {
@@ -119,7 +111,7 @@ app.post("/editWS", function (req, res) {
         null,
         null,
         null);
-    twofactor.editWS(ws, function (response) {
+    twofactor.editWS(ws, function (response) { 
         console.log(response);
         res.json(response)
     })
