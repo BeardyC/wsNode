@@ -69,7 +69,7 @@ app.get("/getUsers", function (req, res) {
 
 
 app.post("/registerUser", function (req, res) {
-
+    console.log("test");
     console.log(req.body.username);
     let obj = new User.User(req.body.username,
         req.body.fname,
@@ -190,7 +190,12 @@ app.get("/getWS", function (req, res) {
 })
 
 app.post("/registerWebService", function (req, res) {
-
+    console.log(req.body);
+    
+    console.log(req.body.username);
+    console.log(req.body.email);
+    
+    
     let obj = new WS.WebService(req.body.username,
         null,
         req.body.password,

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>2FA²P²</title>
+	<meta charset="UTF-8">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="styles.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+
+
+
+
+	<div id="menuContainer">
+		<img id="image" src="cover.jpg">
+		<nav id="navigation">
+			<ul id="left-menu">
+				<li id="product">
+					<a href="#1">Product</a>
+				</li>
+				<li>
+					<a href="#1">Dev</a>
+				</li>
+				<li>
+					<a href="#1">User</a>
+				</li>
+				<li>
+					<a href="#1">About</a>
+				</li>
+			</ul>
+			<ul id="right-menu">
+				<!-- <li> <a id="loginBtn" href="#1"> Login </a> </li>
+				<div class="dropdown-content">
+					<a href="#">Link 1</a>
+					<a href="#">Link 2</a>
+					<a href="#">Link 3</a>
+				</div <li> <a id="registerBtn" href="#1"> Register </a> </li> -->
+
+			</ul>
+			<div style="width:100%; min-width:100%;">
+				<div class="navContainerReg">
+					<a href="#2" id="registerBtn">Register</a>
+					<div class="register-dropdown-content">
+						<a id="userRegBtn" href="#">User</a>
+						<a id="devRegBtn" href="#">Dev</a>
+					</div>
+				</div>
+				<div class="navContainer">
+					<a href="#1" id="loginBtn">Login </a>
+					<div class="dropdown-content">
+						<a id="userLoginBtn" href="#">User</a>
+						<a id="devLoginBtn" href="#">Dev</a>
+					</div>
+				</div>
+			</div>
+
+
+
+		</nav>
+	</div>
+	<div class="container" id="testForm">
+		<form action="/testpost" method="post" id="testFormTest">
+			<h2>Create 2FA to get <span>Started!</span></h2>
+			<hr>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input type="password" id="jose" class="form-control" name="name" placeholder="First name" required="true">
+				</div>
+				<div class="form-group col-xs-6">
+					<input type="password" id="jose1" class="form-control" name="test" placeholder="Last name">
+				</div>
+			</div>
+		</form>
+		<div id="wrapSubmitButton">
+			<button class="btn btn-primary" id="testBtn" type="submit">Submit</button>
+		</div>
+	</div>
+
+
+	<div class="container" id="userRegister">
+		<form action="" method="" id="userRegisterForm">
+			<h2>Register to get <span>Started!</span></h2>
+			<hr>
+			<div class="row">
+				<div class="form-group col-xs-4">
+					<input class="form-control" name="username" placeholder="Username">
+				</div>
+				<div class="form-group col-xs-4">
+					<input class="form-control" name="fname" placeholder="First name">
+				</div>
+				<div class="form-group col-xs-4">
+					<input class="form-control" name="lname" placeholder="Last name">
+				</div>
+
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="email" placeholder="Email">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="dob" placeholder="D.O.B.">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" type="password" id="userRegisterPassword" name="password" placeholder="Choose a password">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" type="password" id="userRegisterPasswordCheck" name="passwordC" placeholder="Repeat password">
+				</div>
+			</div>
+		</form>
+		<div id="wrapSubmitButton">
+			<button class="btn btn-primary" id="userRegisterSubmit" type="submit">Submit</button>
+		</div>
+	</div>
+
+
+
+
+
+	<div class="container" id="devRegister">
+		<form action="/" method="post" id="devRegisterForm">
+			<h2>Create 2FA to get <span>Started!</span></h2>
+			<hr>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="username" placeholder="Username">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="email" placeholder="Email" type="Email">
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" type="password" name="password" id="devRegisterPassword" placeholder="Password">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" type="password" name="passwordC" id="devRegisterPasswordCheck" placeholder="Repeat password">
+				</div>
+			</div>
+		</form>
+			<div id="wrapSubmitButton">
+				<button class="btn btn-primary" id="devRegisterSubmit" type="submit">Submit</button>
+			</div>
+	</div>
+
+	<div class="container" id="userLogin">
+		<form action="/testPost" method="post">
+			<h2>Create 2FA to get <span>Started!</span></h2>
+			<hr>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="name" placeholder="First name">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="name" placeholder="Last name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-12">
+					<input class="form-control" name="companyname" placeholder="Company name (Optional)" type="name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-12">
+					<input class="form-control" name="email" placeholder="Email" type="name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="password" placeholder="Choose a password">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="password" placeholder="Repeat password">
+				</div>
+			</div>
+			<div id="wrapSubmitButton">
+				<button class="btn btn-primary" id="submitButton" type="submit">Submit</button>
+			</div>
+		</form>
+	</div>
+	<div class="loginContainer" id="devLogin">
+		<form action="/testPost" id="devLoginForm" method="post" name="loginForm">
+			<h2>Create 2FA to get <span>Started!</span></h2>
+			<hr>
+			<div class="row">
+				<div class="form-group col-xs-12">
+					<input class="form-control" name="username" placeholder="Username" required="true" type="name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="fname" placeholder="First name" required="true">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" name="lname" placeholder="Last name" required="true">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-12">
+					<input class="form-control" name="dob" placeholder="DOB" required="true" type="name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-12">
+					<input class="form-control" name="email" placeholder="Email" required="true" type="name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-6">
+					<input class="form-control" id="password" name="password" placeholder="Password" required="true">
+				</div>
+				<div class="form-group col-xs-6">
+					<input class="form-control" id="confirm_password" placeholder="Repeat password" required="true">
+				</div>
+			</div>
+		</form>
+			<div id="wrapSubmitButton">{
+				<button class="btn btn-primary" id="devLoginSubmit" type="submit">Submit</button>
+			</div>}
+	</div>
+	<div id="toast">
+		Some text some message..
+	</div>
+	<hr>
+	<footer class="footer">
+		<p>&copy; 2017 2FA, Inc.</p>
+	</footer>
+	<script src="https://code.jquery.com/jquery-latest.min.js">
+
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
+
+	</script>
+	<script>
+		$(document).ready(function () {
+			$("#product").click(function () {
+				console.log("Cliked");
+				$(".container").hide();
+			});
+		});
+	</script>
+	<script>
+		function myFunction(y) {
+			var x = document.getElementById("toast")
+			$("#toast").text(y);
+			x.className = "show";
+			x.text = "tetx";
+			setTimeout(function () {
+				x.className = x.className.replace("show", "");
+			}, 3000);
+		}
+
+		function checkEmptyFields(formName){
+			var empty = true;
+			$('#'+formName+' *').filter(':input').each(function () {
+				if(!$(this).val()){
+					empty = false;
+					myFunction("Please fill out all fields.");
+				}
+			});
+			return empty;
+		}
+		
+		function checkPasswordFields(firstField, secondField){
+			var match = true;
+			console.log("CHECKING");
+			
+			if($(firstField).val() !== $(secondField).val()){
+				match = false;
+				myFunction("Passwords don't match");
+			}
+			return match;
+		}
+
+	</script>
+	<script>
+		$("#testBtn").click(function (e) {
+
+			$.ajax({
+				url: "https://localhost:443/getUsers",
+				type: "get",
+				complete: function (data) {
+						console.log("Finished");
+						console.log(data);
+					},
+					success: function (data) {
+						console.log("SUCCESS");
+						console.log(data);
+
+					},
+					error: function (err) {
+						console.log("ERROR");
+						console.log(err);
+						//called when there is an error
+					},
+			})
+			/*var checked = checkEmptyFields("testFormTest");
+			if(checked){checked = (checkPasswordFields(jose,jose1));}
+			
+			if(checked){
+				
+			}*/
+		});
+
+
+		$("#devRegisterSubmit").click(function(e){
+			console.log("test");
+			var checked = checkEmptyFields("devRegisterForm");
+			if(checked){
+				checked = (checkPasswordFields(devRegisterPassword,devRegisterPasswordCheck));
+			}
+			console.log(checked);
+			if(checked){
+				var data = $("#devRegisterForm").serialize();
+
+				var checked = checkEmptyFields("devRegisterForm");
+				console.log(data);
+				$.ajax({
+					url: "https://localhost:443/registerWebService",
+					type: 'POST',
+					dataType: 'json',
+					data:data,
+					//data: JSON.stringify(data),
+					complete: function (x) {
+						console.log("Finished");
+						console.log(x);
+					},
+					success: function (y) {
+						console.log(y);
+						console.log(y.resp.status)
+						if (y.resp.status === 1) {
+							myFunction("User already Exists");
+						}
+						if (y.resp.status === 0) {
+							myFunction("Successfully Registered");
+						}
+				
+					},
+					error: function (err) {
+						console.log(err);
+						
+					},					
+				})			
+			}
+
+		});
+
+
+
+
+
+
+
+
+		$("#userRegisterSubmit").click(function(e){
+
+			var checked = checkEmptyFields("userRegisterForm");
+			if(checked){
+				checked = (checkPasswordFields(userRegisterPassword,userRegisterPasswordCheck));
+			}
+			console.log(checked);
+			if(checked){
+				var data = $("#userRegisterForm").serialize();
+				var checked = checkEmptyFields("userRegisterForm");
+				console.log(data);
+				$.ajax({
+					url: "https://localhost:443/registerUser",
+					type: 'POST',
+					data:JSON.stringify(data),
+					//data: JSON.stringify(data),
+					complete: function (x) {
+						console.log("Finished");
+						console.log(x);
+					},
+					success: function (y) {
+						console.log(y);
+						console.log(y.resp.status)
+						if (y.resp.status === 1) {
+							myFunction("User already Exists");
+						}
+						if (y.resp.status === 0) {
+							myFunction("Successfully Registered");
+						}
+					},
+					error: function (err) {
+						console.log(err);						
+					},					
+				})				
+			}
+		})
+
+
+
+		$("#submitButton").submit(function (e) {
+			e.preventDefault();
+			var x = $("#password").val();
+			var y = $("#confirm_password").val();
+			console.log(x);
+			console.log(y);
+			if ($("#password").val() !== $("#confirm_password").val()) {
+				console.log("ERROR");
+				myFunction("Passwords don't match");
+			} else {
+				var data = $("#loginForm").serialize();
+				console.log(data);
+				$.ajax({
+					url: "https://localhost:443/registerUser",
+					type: "POST",
+					data: data, submit,
+					complete: function (data) {
+						console.log("Finished");
+						// /console.log(data);
+					},
+					success: function (data) {
+						console.log(data);
+						console.log(data.resp.status)
+						if (data.resp.status === 1) {
+							myFunction("User already Exists");
+						}
+						if (data.resp.status === 0) {
+							myFunction("Successfully Registered");
+						}
+						//called when successfulCreate 2FA to get Started!
+
+					},
+					error: function (err) {
+						console.log(data);
+						//called when there is an error
+					},
+				});
+			}
+			/*                 var password = $(".password");
+							var confirm_password = $(".confirm_password");
+				    
+							function validatePassword() {
+								if (password.value != confirm_password.value) {
+									confirm_password.setCustomValidity("Passwords Don't Match");
+								} else {
+	 
+								}
+							}
+				    
+							password.onchange = validatePassword;
+							confirm_password.onkeyup = validatePassword;*/
+		})
+
+		$("#userLoginBtn").click(function () {
+			$("#userLogin").fadeToggle("fast");
+			$("#userLogin").css({
+				"visibility": "visible",
+				"display": "block"
+			});
+			$("#devLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#userRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+		})
+
+		$("#devLoginBtn").click(function () {
+			$("#devLogin").fadeToggle("fast");
+			$("#userLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devLogin").css({
+				"visibility": "visible",
+				"display": "block"
+			});
+			$("#userRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+		})
+
+		$("#userRegBtn").click(function () {
+			$("#userRegister").fadeToggle("fast");
+			$("#userLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#userRegister").css({
+				"visibility": "visible",
+				"display": "block"
+			});
+			$("#devRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+		})
+
+		$("#devRegBtn").click(function () {
+			$("#devRegister").fadeToggle("fast");
+			$("#userLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devLogin").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#userRegister").css({
+				"visibility": "hidden",
+				"display": "none"
+			});
+			$("#devRegister").css({
+				"visibility": "visible",
+				"display": "block"
+			});
+		})
+	</script>
+</body>
+
+</html>

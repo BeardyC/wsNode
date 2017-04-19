@@ -9,7 +9,7 @@ var body = require("body-parser");
 var crypto = require("crypto");
 var User = require("./models/users");
 var WS = require("./models/webService");
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "1";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var app = express();
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
@@ -53,6 +53,7 @@ app.get("/getUsers", function (req, res) {
     });
 });
 app.post("/registerUser", function (req, res) {
+    console.log("test");
     console.log(req.body.username);
     var obj = new User.User(req.body.username, req.body.fname, req.body.lname, req.body.dob, req.body.email, req.body.password);
     console.log(obj);
@@ -123,6 +124,9 @@ app.get("/getWS", function (req, res) {
     });
 });
 app.post("/registerWebService", function (req, res) {
+    console.log(req.body);
+    console.log(req.body.username);
+    console.log(req.body.email);
     var obj = new WS.WebService(req.body.username, null, req.body.password, req.body.email, null, null, null);
     twofactor.registerWS(obj, function (response) {
         res.json({ resp: response });

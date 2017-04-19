@@ -1,0 +1,291 @@
+
+.container form h2 {
+    text-align:center;
+}
+#submitButton {
+    width: 30%;
+    text-align:center;
+    margin: 0 auto;
+}
+#wrapSubmitButton{
+    text-align:center;
+    margin: 0 auto;
+}
+.footer p{
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    float:right;
+}
+
+
+
+
+
+#menuContainer {
+    position: relative;
+}
+#image {
+  left: 0;
+  top: 0;
+  width:100%;
+}
+#navigation {
+  z-index: 100;
+  position: absolute;
+  color:#FFF;
+  top: 20px;
+  width:100%;
+  min-width:100%;
+}
+
+
+#navigation #nav-right {
+  text-align:right;
+
+}
+#navigation #nav-left{
+  text-align:left;
+}
+
+
+#navigation #right-menu li {
+  list-style-type: none;
+  display: inline-block;
+  float: right;
+}
+#navigation #right-menu li a {
+  text-decoration: none;
+  color: black;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  margin:5px;
+  border: solid 2px black;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#navigation #right-menu li a:hover {
+  background: black;
+  transition:0.5s;
+  color:white;
+}
+
+
+#navigation #left-menu li {
+  list-style-type: none;
+  display: inline-block;
+  float:left;
+}
+#navigation #left-menu li a {
+  text-decoration: none;
+  color: #FFF;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  margin:5px;
+  font-size: 22px;
+}
+#navigation #left-menu li a:hover {
+  transition:0.5s;
+  color:orange;
+}
+
+#left-menu {
+  margin-left: 80px;
+}
+
+#right-menu {
+  margin-right: 80px;
+}
+
+
+
+ul {
+  vertical-align: middle;
+}
+span {
+  color: orange;
+}
+
+/*                                          */
+.loginContainer form h2 {
+    text-align:center;
+    display:block;
+}
+
+
+/*TOAST */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#toast.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+/*
+@-webkit-keyframes fadeout {
+    from {bottom: 30px document.getElementById("toast"); opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}*/
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+
+#userLogin, #devLogin, #userRegister, #devRegister{
+    display: none;
+    visibility: hidden;
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100%;
+    top:30px;
+    z-index: 1;
+    text-align: center;
+}
+.register-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100%;
+    top:30px;
+    z-index: 1;
+    text-align: center;
+}
+
+.dropdown-content a{
+    text-decoration: none;
+    color: #FFF;
+    padding:15px;
+    padding-top:10px;
+    padding-bottom:10px;
+    margin:0px;
+    border: solid 2px #FFF;
+    font-size: 22px;
+    font-weight: bold;
+    display: block;
+}
+.register-dropdown-content a{
+    text-decoration: none;
+    color: #FFF;
+    padding:15px;
+    padding-top:10px;
+    padding-bottom:10px;
+    margin:0px;
+    border: solid 2px #FFF;
+    font-size: 22px;
+    font-weight: bold;
+    display: block;
+}
+
+.navContainer:hover .dropdown-content {
+    background-color:rgba(255,255,255,0);
+    margin:10px;
+    display:block;
+}
+
+.navContainer {
+    position: relative;
+    display: inline-block;
+    float: right;
+}
+
+#navigation .navContainer a:hover {
+  transition:0.5s;
+  color:orange;
+}
+#navigation .navContainerReg a:hover {
+  transition:0.5s;
+  color:orange;
+  border: solid 2px orange;;
+}
+
+.navContainerReg:hover .dropdown-content {
+    background-color:rgba(255,255,255,0);
+    margin:10px;
+    display:block;
+}
+
+.navContainerReg {
+    position: relative;
+    display:inline-block;
+    float:right;
+    
+}
+
+
+
+.navContainer:hover .dropdown-content{
+    background-color:rgba(255,255,255,0);
+    margin:10px;
+    display:block;
+}
+
+.navContainerReg:hover .register-dropdown-content{
+    background-color:rgba(255,255,255,0);
+    margin:10px;
+    display:block;
+}
+
+
+#loginBtn{
+  text-decoration: none;
+  color: #FFF;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  border: solid 2px #FFF;
+  font-size: 22px;
+  font-weight: bold;
+  margin:10px;
+}
+#registerBtn{
+  text-decoration: none;
+  color: #FFF;
+  padding:15px;
+  padding-top:8px;
+  padding-bottom:8px;
+  border: solid 2px #FFF;
+  font-size: 22px;
+  font-weight: bold;
+  margin:10px;
+}
