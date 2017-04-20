@@ -69,6 +69,8 @@ app.get("/getUsers", function (req, res) {
 
 
 app.post("/registerUser", function (req, res) {
+    console.log(req.body);
+    
     console.log("test");
     console.log(req.body.username);
     let obj = new User.User(req.body.username,
@@ -128,7 +130,7 @@ app.post("/userLogin", function (req, res) {
         null);
     twofactor.loginUser(user, function (response) {
         console.log(response);
-        res.json(response);
+        res.json({resp:response});
     })
 })
 

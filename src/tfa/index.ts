@@ -141,7 +141,7 @@ export default class TFA {
     public loginUser(user, callback: (Response) => void) {
         console.log(user);
         let _this = this;
-        db.one("SELECT u_name, u_ FROM user_table WHERE u_name = ${name}", user)
+        db.one("SELECT u_name, u_salt, p_hash FROM user_table WHERE u_name = ${name}", user)
             .then(function (data) {
                 let serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
                 console.log(serverhash);

@@ -53,6 +53,7 @@ app.get("/getUsers", function (req, res) {
     });
 });
 app.post("/registerUser", function (req, res) {
+    console.log(req.body);
     console.log("test");
     console.log(req.body.username);
     var obj = new User.User(req.body.username, req.body.fname, req.body.lname, req.body.dob, req.body.email, req.body.password);
@@ -79,7 +80,7 @@ app.post("/userLogin", function (req, res) {
     var user = new User.User(req.body.username, null, null, null, null, req.body.password, null, null);
     twofactor.loginUser(user, function (response) {
         console.log(response);
-        res.json(response);
+        res.json({ resp: response });
     });
 });
 app.post("/wsLogin", function (req, res) {

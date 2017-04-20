@@ -1,59 +1,443 @@
 doctype html
 html
   head
-    title  2FA 
+    title 2FA²P²
     meta(charset='UTF-8')
-    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css')
-    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-    link(rel='stylesheet', type='text/css', href='/css/styles.css')
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css', rel='stylesheet', type='text/css')
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', rel='stylesheet', type='text/css')
+  link(rel='stylesheet', type='text/css', href='/css/styles.css')
   body
     #menuContainer
       img#image(src='/img/cover.jpg')
       nav#navigation
         ul#left-menu
+          li#product
+            a(href='#1') Product
           li
-            a(href='#1')  Product 
+            a(href='#1') Dev
           li
-            a(href='#1')  Dev 
+            a(href='#1') User
           li
-            a(href='#1')  User 
-          li
-            a(href='#1')  About 
+            a(href='#1') About
         ul#right-menu
-          li
-            a(href='#1')  Login 
-          li
-            a(href='#1')  Register 
-    #mainContainer.container
-      form(action='/testPost', method='post')
+          //
+            <li> <a id="loginBtn" href="#1"> Login </a> </li>
+            <div class="dropdown-content">
+            <a href="#">Link 1</a>
+            <a href="#">Link 2</a>
+            <a href="#">Link 3</a>
+            </div <li> <a id="registerBtn" href="#1"> Register </a> </li>
+        div(style='width:100%; min-width:100%;')
+          .navContainerReg
+            a#registerBtn(href='#2') Register
+            .register-dropdown-content
+              a#userRegBtn(href='#') User
+              a#devRegBtn(href='#') Dev
+          .navContainer
+            a#loginBtn(href='#1') Login 
+            .dropdown-content
+              a#userLoginBtn(href='#') User
+              a#devLoginBtn(href='#') Dev
+    #testForm.container
+      form#testFormTest(action='/testpost', method='post')
         h2
           | Create 2FA to get 
-          span  Started!
+          span Started!
         hr
         .row
           .form-group.col-xs-6
-            input.form-control(name='name', placeholder='First name')
+            input#jose.form-control(type='password', name='name', placeholder='First name', required='true')
           .form-group.col-xs-6
-            input.form-control(name='name', placeholder='Last name')
+            input#jose1.form-control(type='password', name='test', placeholder='Last name')
+      #wrapSubmitButton
+        button#testBtn.btn.btn-primary(type='submit') Submit
+    #userRegister.container
+      form#userRegisterForm(action='', method='')
+        h2
+          | Register to get 
+          span Started!
+        hr
+        .row
+          .form-group.col-xs-4
+            input.form-control(name='username', placeholder='Username')
+          .form-group.col-xs-4
+            input.form-control(name='fname', placeholder='First name')
+          .form-group.col-xs-4
+            input.form-control(name='lname', placeholder='Last name')
+        .row
+          .form-group.col-xs-6
+            input.form-control(name='email', placeholder='Email')
+          .form-group.col-xs-6
+            input.form-control(name='dob', placeholder='D.O.B.')
+        .row
+          .form-group.col-xs-6
+            input#userRegisterPassword.form-control(type='password', name='password', placeholder='Choose a password')
+          .form-group.col-xs-6
+            input#userRegisterPasswordCheck.form-control(type='password', name='passwordC', placeholder='Repeat password')
+      #wrapSubmitButton
+        button#userRegisterSubmit.btn.btn-primary(type='submit') Submit
+    #devRegister.container
+      form#devRegisterForm(action='/', method='post')
+        h2
+          | Create 2FA to get 
+          span Started!
+        hr
+        .row
+          .form-group.col-xs-6
+            input.form-control(name='username', placeholder='Username')
+          .form-group.col-xs-6
+            input.form-control(name='email', placeholder='Email', type='Email')
+        .row
+          .form-group.col-xs-6
+            input#devRegisterPassword.form-control(type='password', name='password', placeholder='Password')
+          .form-group.col-xs-6
+            input#devRegisterPasswordCheck.form-control(type='password', name='passwordC', placeholder='Repeat password')
+      #wrapSubmitButton
+        button#devRegisterSubmit.btn.btn-primary(type='submit') Submit
+    #userLogin.container
+      form#userLoginForm(action='/testPost', method='post')
+        h2
+          | Create 2FA to get 
+          span Started!
+        hr
+        .row
+          .form-group.col-xs-6
+            input.form-control(name='username', placeholder='Username')
+          .form-group.col-xs-6
+            input.form-control(type='password', name='password', placeholder='Password')
+      #wrapSubmitButton
+        button#userLoginSubmit.btn.btn-primary(type='submit') Submit
+    #devLogin.container
+      form#devLoginForm(action='/testPost', method='post')
+        h2
+          | Create 2FA to get 
+          span Started!
+        hr
         .row
           .form-group.col-xs-12
-            input.form-control(type='name', name='companyname', placeholder='Company name (Optional)')
+            input.form-control(name='username', placeholder='Username', required='true')
         .row
           .form-group.col-xs-12
-            input.form-control(type='name', name='email', placeholder='Email ')
-        .row
-          .form-group.col-xs-6
-            input.form-control(name='password', placeholder='Choose a password')
-          .form-group.col-xs-6
-            input.form-control(name='password', placeholder='Repeat password')
-        #wrapSubmitButton
-          button#submitButton.btn.btn-primary(type='submit') Submit
+            input.form-control(type='password', name='password', placeholder='Password', required='true')
+      #wrapSubmitButton
+        button#devLoginSubmit.btn.btn-primary(type='submit') Submit
+    #toast
+      | Some text some message..
     hr
     footer.footer
       p © 2017 2FA, Inc.
     script(src='https://code.jquery.com/jquery-latest.min.js')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
     script.
-          var test = !{JSON.stringify(test)};
-          console.log(test);
-          alert(test.output);
+      $(document).ready(function () {
+      $("#product").click(function () {
+      console.log("Cliked");
+      $(".container").hide();
+      });
+      });
+    script.
+      function myFunction(y) {
+      var x = document.getElementById("toast")
+      $("#toast").text(y);
+      x.className = "show";
+      setTimeout(function () {
+      x.className = x.className.replace("show", "");
+      }, 3000);
+      }
+      function checkEmptyFields(formName) {
+      var empty = true;
+      $('#' + formName + ' *').filter(':input').each(function () {
+      if (!$(this).val()) {
+      empty = false;
+      myFunction("Please fill out all fields.");
+      }
+      });
+      return empty;
+      }
+      function checkPasswordFields(firstField, secondField) {
+      var match = true;
+      console.log("CHECKING");
+      if ($(firstField).val() !== $(secondField).val()) {
+      match = false;
+      myFunction("Passwords don't match");
+      }
+      return match;
+      }
+    script.
+      $("#testBtn").click(function (e) {
+      $.ajax({
+      url: "https://localhost:443/getUsers",
+      type: "get",
+      complete: function (data) {
+      console.log("Finished");
+      console.log(data);
+      },
+      success: function (data) {
+      console.log("SUCCESS");
+      console.log(data);
+      },
+      error: function (err) {
+      console.log("ERROR");
+      console.log(err);
+      //called when there is an error
+      },
+      })
+      /*var checked = checkEmptyFields("testFormTest");
+      if(checked){checked = (checkPasswordFields(jose,jose1));}
+      if(checked){
+      }*/
+      });
+      $("#devRegisterSubmit").click(function (e) {
+      console.log("test");
+      var checked = checkEmptyFields("devRegisterForm");
+      if (checked) {
+      checked = (checkPasswordFields(devRegisterPassword, devRegisterPasswordCheck));
+      }
+      console.log(checked);
+      if (checked) {
+      var data = $("#devRegisterForm").serialize();
+      var checked = checkEmptyFields("devRegisterForm");
+      console.log(data);
+      $.ajax({
+      url: "https://localhost:443/registerWebService",
+      type: 'POST',
+      dataType: 'json',
+      data: data,
+      //data: JSON.stringify(data),
+      complete: function (x) {
+      console.log("Finished");
+      console.log(x);
+      },
+      success: function (y) {
+      console.log(y);
+      console.log(y.resp.status)
+      if (y.resp.status === 1) {
+      myFunction("User already Exists");
+      }
+      if (y.resp.status === 0) {
+      myFunction("Successfully Registered");
+      }
+      },
+      error: function (err) {
+      console.log(err);
+      },
+      })
+      }
+      });
+      $("#userRegisterSubmit").click(function (e) {
+      var checked = checkEmptyFields("userRegisterForm");
+      if (checked) {
+      checked = (checkPasswordFields(userRegisterPassword, userRegisterPasswordCheck));
+      }
+      console.log(checked);
+      if (checked) {
+      var data = $("#userRegisterForm").serialize();
+      var checked = checkEmptyFields("userRegisterForm");
+      console.log(data);
+      $.ajax({
+      url: "https://localhost:443/registerUser",
+      type: 'POST',
+      data: data,
+      //data: JSON.stringify(data),
+      complete: function (x) {
+      console.log("Finished");
+      console.log(x);
+      },
+      success: function (y) {
+      console.log(y);
+      console.log(y.resp.status)
+      if (y.resp.status === 1) {
+      myFunction("User already Exists");
+      }
+      if (y.resp.status === 0) {
+      myFunction("Successfully Registered");
+      }
+      },
+      error: function (err) {
+      console.log(err);
+      },
+      })
+      }
+      });
+      $("#userLoginSubmit").click(function (e) {
+      var checked = checkEmptyFields("userLoginForm");
+      console.log(checked);
+      if (checked) {
+      var data = $("#userLoginForm").serialize();
+      var checked = checkEmptyFields("userLoginForm");
+      console.log(data);
+      $.ajax({
+      url: "/userLogin",
+      type: 'POST',
+      data: data,
+      //data: JSON.stringify(data),
+      complete: function (x) {
+      console.log("Finished");
+      },
+      success: function (y) {
+      if (y.resp.status === 0) {
+      myFunction("Successfully Logged In");
+      }
+      if (y.resp.status === 1) {
+      myFunction("Details Incorrect");
+      }
+      },
+      error: function (err) {
+      console.log(err);
+      },
+      })
+      }
+      });
+      $("#devLoginSubmit").click(function (e) {
+      var checked = checkEmptyFields("devLoginForm");
+      console.log(checked);
+      if (checked) {
+      var data = $("#devLoginForm").serialize();
+      var checked = checkEmptyFields("devLoginForm");
+      console.log(data);
+      $.ajax({
+      url: "https://localhost:443/wsLogin",
+      type: 'POST',
+      data: data,
+      //data: JSON.stringify(data),
+      complete: function (x) {
+      console.log("Finished");
+      },
+      success: function (y) {
+      if (y.status === 0) {
+      myFunction("Successfully Logged In");
+      }
+      if (y.status === 1) {
+      myFunction("Details Incorrect");
+      }
+      },
+      error: function (err) {
+      console.log(err);
+      },
+      })
+      }
+      });
+      $("#submitButton").submit(function (e) {
+      e.preventDefault();
+      var x = $("#password").val();
+      var y = $("#confirm_password").val();
+      console.log(x);
+      console.log(y);
+      if ($("#password").val() !== $("#confirm_password").val()) {
+      console.log("ERROR");
+      myFunction("Passwords don't match");
+      } else {
+      var data = $("#loginForm").serialize();
+      console.log(data);
+      $.ajax({
+      url: "https://localhost:443/registerUser",
+      type: "POST",
+      data: data, submit,
+      complete: function (data) {
+      console.log("Finished");
+      // /console.log(data);
+      },
+      success: function (data) {
+      console.log(data);
+      console.log(data.resp.status)
+      if (data.resp.status === 1) {
+      myFunction("User already Exists");
+      }
+      if (data.resp.status === 0) {
+      myFunction("Successfully Registered");
+      }
+      //called when successfulCreate 2FA to get Started!
+      },
+      error: function (err) {
+      console.log(data);
+      //called when there is an error
+      },
+      });
+      }
+      /*                 var password = $(".password");
+      var confirm_password = $(".confirm_password");
+      function validatePassword() {
+      if (password.value != confirm_password.value) {
+      confirm_password.setCustomValidity("Passwords Don't Match");
+      } else {
+      }
+      }
+      password.onchange = validatePassword;
+      confirm_password.onkeyup = validatePassword;*/
+      })
+      $("#userLoginBtn").click(function () {
+      $("#userLogin").fadeToggle("fast");
+      $("#userLogin").css({
+      "visibility": "visible",
+      "display": "block"
+      });
+      $("#devLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#userRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      })
+      $("#devLoginBtn").click(function () {
+      $("#devLogin").fadeToggle("fast");
+      $("#userLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devLogin").css({
+      "visibility": "visible",
+      "display": "block"
+      });
+      $("#userRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      })
+      $("#userRegBtn").click(function () {
+      $("#userRegister").fadeToggle("fast");
+      $("#userLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#userRegister").css({
+      "visibility": "visible",
+      "display": "block"
+      });
+      $("#devRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      })
+      $("#devRegBtn").click(function () {
+      $("#devRegister").fadeToggle("fast");
+      $("#userLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devLogin").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#userRegister").css({
+      "visibility": "hidden",
+      "display": "none"
+      });
+      $("#devRegister").css({
+      "visibility": "visible",
+      "display": "block"
+      });
+      })

@@ -124,7 +124,7 @@ var TFA = (function () {
     TFA.prototype.loginUser = function (user, callback) {
         console.log(user);
         var _this = this;
-        db.one("SELECT u_name, u_ FROM user_table WHERE u_name = ${name}", user)
+        db.one("SELECT u_name, u_salt, p_hash FROM user_table WHERE u_name = ${name}", user)
             .then(function (data) {
             var serverhash = _this.hashpassword(user.password, data.u_salt, 1000);
             console.log(serverhash);
