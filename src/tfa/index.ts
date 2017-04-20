@@ -319,8 +319,11 @@ export default class TFA {
             .then(function (data) {
 
                 let it = (_this.generateTimestamp() - Number(data.u_timestamp)) / _this.hashValidity;
+                let now = _this.generateTimestamp() * 1000;
                 let x = crypto.pbkdf2Sync(data.u_secret, data.u_salt, it, 20, _this.hashAlgo).toString('hex').substring(0, _this.hashLength + 1);
-                callback(new Response(ResponseStatus.SUCCESS, { data: x, valid: true }));
+                let finish = _this.generateTimestamp() * 1000;
+                let timeTaken = finish - now;
+                callback(new Response(ResponseStatus.SUCCESS, { data: x, valid: true, timeTaken: timeTaken }));
             })
             .catch(function (err) {
                 callback(new Response(ResponseStatus.ERROR, { data: "Unrecognised user", valid: false }))

@@ -35,13 +35,44 @@ app.use(express.static(__dirname + "/views"));
 app.get("/", function (req, res) {
     res.render('index', res);
 });
+
+app.post("/sign", function (req, res) {
+    /*    const crypto = require('crypto');
+        const sign = crypto.createSign('RSA-SHA256');
+    
+        sign.write('some data to sign');
+        sign.end();
+        let signature = sign.sign(privateKey, 'hex');
+        console.log(sign.sign(privateKey, 'hex'));
+    
+        const verify = crypto.createVerify('RSA-SHA256');
+        verify.update('some data to sign');
+    
+        const publicKey = cert;
+        console.log(verify.verify(publicKey, signature));*/
+    let x = JSON.stringify(req.body);
+    var signer = crypto.createSign('sha256');
+    signer.update(x);
+    var sign = signer.sign(privateKey, 'base64');
+    
+
+    var verifier = crypto.createVerify('sha256');
+    verifier.update(x);
+    var ver = verifier.verify(cert, sign, 'base64');
+    console.log(ver);
+    let encryped = crypto.publicEncrypt(cert, new Buffer(x)).toString('base64');
+    console.log(encryped);
+    res.json(sign);
+})
+
+
 app.post("/encrypt", function (req, res) {
 
     let toBeEncryped: string = req.body.username;
     console.log("Message to Encrypt : ", toBeEncryped);
     let buffer = new Buffer(toBeEncryped);
     let encryped = crypto.publicEncrypt(privateKey, buffer);
-    console.log("Encryped message  :   ", encryped)
+    console.log("Encryped message  :   ", encryped);
 
 
     let string1 = encryped.toString("base64");
@@ -70,7 +101,7 @@ app.get("/getUsers", function (req, res) {
 
 app.post("/registerUser", function (req, res) {
     console.log(req.body);
-    
+
     console.log("test");
     console.log(req.body.username);
     let obj = new User.User(req.body.username,
@@ -113,9 +144,9 @@ app.post("/editWS", function (req, res) {
         null,
         null,
         null);
-    twofactor.editWS(ws, function (response) { 
+    twofactor.editWS(ws, function (response) {
         console.log(response);
-        res.json(response)
+        res.json(response);
     })
 })
 
@@ -130,7 +161,7 @@ app.post("/userLogin", function (req, res) {
         null);
     twofactor.loginUser(user, function (response) {
         console.log(response);
-        res.json({resp:response});
+        res.json({ resp: response });
     })
 })
 
@@ -172,7 +203,7 @@ app.post("/deleteUser", function (req, res) {
                 console.log(response);
                 if (response.status = true) {
                     res.json({ resp: "Successfully deleted user" });
-                    console.log()
+                    console.log();
                 } else {
                     res.json({ resp: response });
                 }
@@ -193,11 +224,11 @@ app.get("/getWS", function (req, res) {
 
 app.post("/registerWebService", function (req, res) {
     console.log(req.body);
-    
+
     console.log(req.body.username);
     console.log(req.body.email);
-    
-    
+
+
     let obj = new WS.WebService(req.body.username,
         null,
         req.body.password,
@@ -252,6 +283,8 @@ app.post("/deleteWebService", function (req, res) {
 })*/
 
 app.post("/getCode", function (req, res) {
+    console.log(req.body);
+
     let ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
     twofactor.verifyAPIkey(ws, function (response) {
         if (response.content.valid == true) {
@@ -264,7 +297,7 @@ app.post("/getCode", function (req, res) {
             })
         } else {
             /*res.json({res:response,message:"Invalid API Key"})*/
-            res.json({ res: "Invalid API Key" })
+            res.json({ res: "Invalid API Key" });
         }
     })
 })
@@ -282,7 +315,7 @@ app.post("/verifyCode", function (req, res) {
                 }
             })
         } else {
-            res.json({ res: "Invalid API Key" })
+            res.json({ res: "Invalid API Key" });
         }
     })
 })

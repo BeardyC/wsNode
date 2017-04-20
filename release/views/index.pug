@@ -38,19 +38,6 @@ html
             .dropdown-content
               a#userLoginBtn(href='#') User
               a#devLoginBtn(href='#') Dev
-    #testForm.container
-      form#testFormTest(action='/testpost', method='post')
-        h2
-          | Create 2FA to get 
-          span Started!
-        hr
-        .row
-          .form-group.col-xs-6
-            input#jose.form-control(type='password', name='name', placeholder='First name', required='true')
-          .form-group.col-xs-6
-            input#jose1.form-control(type='password', name='test', placeholder='Last name')
-      #wrapSubmitButton
-        button#testBtn.btn.btn-primary(type='submit') Submit
     #userRegister.container
       form#userRegisterForm(action='', method='')
         h2

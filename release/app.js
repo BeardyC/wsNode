@@ -31,6 +31,32 @@ app.use(express.static(__dirname + "/views"));
 app.get("/", function (req, res) {
     res.render('index', res);
 });
+app.post("/sign", function (req, res) {
+    /*    const crypto = require('crypto');
+        const sign = crypto.createSign('RSA-SHA256');
+    
+        sign.write('some data to sign');
+        sign.end();
+        let signature = sign.sign(privateKey, 'hex');
+        console.log(sign.sign(privateKey, 'hex'));
+    
+        const verify = crypto.createVerify('RSA-SHA256');
+        verify.update('some data to sign');
+    
+        const publicKey = cert;
+        console.log(verify.verify(publicKey, signature));*/
+    var x = JSON.stringify(req.body);
+    var signer = crypto.createSign('sha256');
+    signer.update(x);
+    var sign = signer.sign(privateKey, 'base64');
+    var verifier = crypto.createVerify('sha256');
+    verifier.update(x);
+    var ver = verifier.verify(cert, sign, 'base64');
+    console.log(ver); //<--- always false
+    var encryped = crypto.publicEncrypt(cert, new Buffer(x)).toString('base64');
+    console.log(encryped);
+    res.json(sign);
+});
 app.post("/encrypt", function (req, res) {
     var toBeEncryped = req.body.username;
     console.log("Message to Encrypt : ", toBeEncryped);
@@ -166,6 +192,7 @@ app.post("/deleteWebService", function (req, res) {
 
 })*/
 app.post("/getCode", function (req, res) {
+    console.log(req.body);
     var ws = new WS.WebService(null, null, null, null, null, req.body.apikey, null);
     twofactor.verifyAPIkey(ws, function (response) {
         if (response.content.valid == true) {
