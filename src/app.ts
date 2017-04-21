@@ -38,7 +38,7 @@ app.get("*", function (req, res) {
 });
 
 
-let server = https.createServer(credentials, app).listen(4443, "0.0.0.0", function () {
+let server = https.createServer(credentials, app).listen(8000, "0.0.0.0", function () {
     console.log("Listening on", server.address().address, server.address().port);
 });
 
