@@ -14,8 +14,8 @@ var app = express();
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
 var twofactor = new tfa_1.default(15, "sha256", 4);
-var privateKey = fs.readFileSync("../keyscerts/server-key.pem", "utf8");
-var cert = fs.readFileSync("../keyscerts/server-cert.pem", "utf8");
+var privateKey = fs.readFileSync("../keyscerts/privkey.pem", "utf8");
+var cert = fs.readFileSync("../keyscerts/fullchain.pem", "utf8");
 var credentials = {
     key: privateKey,
     cert: cert
@@ -52,7 +52,7 @@ app.post("/sign", function (req, res) {
     var verifier = crypto.createVerify('sha256');
     verifier.update(x);
     var ver = verifier.verify(cert, sign, 'base64');
-    console.log(ver); //<--- always false
+    console.log(ver);
     var encryped = crypto.publicEncrypt(cert, new Buffer(x)).toString('base64');
     console.log(encryped);
     res.json(sign);
@@ -240,6 +240,6 @@ app.post("/verifyAPIKey", function (req, res) {
 app.get("*", function (req, res) {
     res.send('404');
 });
-var server = https.createServer(credentials, app).listen(443, "0.0.0.0", function () {
+var server = https.createServer(credentials, app).listen(4443, "0.0.0.0", function () {
     console.log("Listening on", server.address().address, server.address().port);
 });
