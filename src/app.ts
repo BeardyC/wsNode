@@ -18,8 +18,8 @@ app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
 
 let twofactor = new TFA(15, "sha256", 4);
-let privateKey = fs.readFileSync("../keyscerts/server-key.pem", "utf8")
-let cert = fs.readFileSync("../keyscerts/server-cert.pem", "utf8")
+let privateKey = fs.readFileSync("../keyscerts/privkey.pem", "utf8")
+let cert = fs.readFileSync("../keyscerts/fullchain.pem", "utf8")
 let credentials = {
     key: privateKey,
     cert: cert
