@@ -29,6 +29,6 @@ app.get("/", function (req, res) {
 app.get("*", function (req, res) {
     res.send('404');
 });
-var server = https.createServer(credentials, app).listen(4443, "0.0.0.0", function () {
+var server = https.createServer(credentials, app).listen(8000, "0.0.0.0", function () {
     console.log("Listening on", server.address().address, server.address().port);
 });

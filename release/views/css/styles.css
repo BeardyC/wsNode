@@ -168,8 +168,8 @@ span {
 
 
 #userLogin, #devLogin, #userRegister, #devRegister{
-    display: none;
-    visibility: hidden;
+   /* display: none;
+    visibility: hidden;*/
 }
 
 
