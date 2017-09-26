@@ -11,15 +11,6 @@ var User = (function () {
         if (salt === void 0) { salt = 'salt'; }
         if (tstamp === void 0) { tstamp = '0'; }
         if (secret === void 0) { secret = 'secret'; }
-        this.name = 'name';
-        this.fname = 'fname';
-        this.lname = 'lname';
-        this.dob = 'dob';
-        this.email = 'email';
-        this.password = 'password';
-        this.tstamp = '0';
-        this.salt = 'salt';
-        this.secret = 'secret';
         this.name = (name === null) ? 'name' : name;
         this.fname = (fname === null) ? 'fname' : fname;
         this.lname = (lname === null) ? 'lname' : lname;
