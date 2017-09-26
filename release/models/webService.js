@@ -9,13 +9,6 @@ var WebService = (function () {
         if (timestamp === void 0) { timestamp = "timestamp"; }
         if (apikey === void 0) { apikey = "apikey"; }
         if (apivalidity === void 0) { apivalidity = "apivalidity"; }
-        this.name = "name";
-        this.salt = "salt";
-        this.password = "password";
-        this.email = "email";
-        this.timestamp = "timestamp";
-        this.apikey = "apikey";
-        this.apivalidity = "apivalidity";
         this.name = (name === null) ? 'name' : name;
         this.salt = (salt === null) ? 'salt' : salt;
         this.password = (password === null) ? 'password' : password;
